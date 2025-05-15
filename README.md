@@ -1,5 +1,5 @@
 
-<h3><b>Hi there, I'm Kuuuuuuuu</b></h3>
+<h3><b>Hi there, I'm npz.pw</b></h3>
 <h4>👋 Welcome to my profile!</h4>
 <h4>👀 I'm Student, Developer and Gamer</h4>
 
