@@ -7,11 +7,11 @@
 <hr/>
 <br/>
 <h4>📊 My GitHub Stats</h4>
-<h5><b>🕒 Last Update: January 1st 2023, 00:00:00 am UTC</b></h5>
+<h5><b>🕒 Last Update: July 23th 2025, 00:00:00 am UTC</b></h5>
 <ul>
-    <li>🌟 Followers: 0</li>
+    <li>🌟 Followers: 6</li>
     <li>📚 Following: 0</li>
-    <li>📂 Public Repo: 0</li>
+    <li>📂 Public Repo: 2</li>
 </ul>
 <h4>🛠️ My Programming Skills</h4>
 <ul>
