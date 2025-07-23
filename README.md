@@ -3,7 +3,7 @@
 <h4>👋 Welcome to my profile!</h4>
 <h4>👀 I'm Student, Developer and Gamer</h4>
 
-<h4>📫 Email: <a href="mailto"con@killua.ddns.net">con@killua.ddns.net</a></h4>
+<h4>📫 Email: <a href="mailto:npzpw@gmail.com">npzpw@gmail.com</a></h4>
 <hr/>
 <br/>
 <h4>📊 My GitHub Stats</h4>
