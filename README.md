@@ -18,7 +18,7 @@
     <li>Programming Languages: HTML, Css, JavaScript, PHP, C</li>
     <li>Frameworks: Node.js, Discord.js</li>
     <li>Tools: Git, Docker</li>
-    <li>IDEs: PHPStorm, Arduino</li>
+    <li>IDEs: VSCode, PHPStorm, Arduino</li>
     <li>Etc: Cloudflare, Vercel, AWS, Pocketmine-MP, Spigot</li>
     <li>Currently Learning: Arduino</li>
 </ul>
