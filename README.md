@@ -22,3 +22,4 @@
     <li>Etc: Cloudflare, Vercel, AWS, Pocketmine-MP, Spigot</li>
     <li>Currently Learning: Arduino</li>
 </ul>
+<a href="https://discord.com/users/848837759611306016"><img src="https://lanyard.cnrad.dev/api/848837759611306016?theme=dark" /></a>
