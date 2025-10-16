@@ -15,7 +15,7 @@
 </ul>
 <h4>🛠️ My Programming Skills</h4>
 <ul>
-    <li>Programming Languages: HTML, Css, JavaScript, PHP, C</li>
+    <li>Programming Languages: JavaScript, PHP, C</li>
     <li>Frameworks: Node.js, Discord.js</li>
     <li>Tools: Git, Docker</li>
     <li>IDEs: VSCode, PHPStorm, Arduino</li>
