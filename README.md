@@ -19,7 +19,7 @@
     <li>Frameworks: Node.js, Discord.js</li>
     <li>Tools: Git, Docker</li>
     <li>IDEs: VSCode, PHPStorm, Arduino</li>
-    <li>Etc: Cloudflare, Vercel, AWS, Pocketmine-MP, Spigot</li>
-    <li>Currently Learning: Arduino</li>
+    <li>Etc: Cloudflare, Vercel, AWS, Pocketmine-MP, Spigot, Bukkit, Nukkit</li>
+    <li>Currently Learning: PHP</li>
 </ul>
 <a href="https://discord.com/users/848837759611306016"><img src="https://lanyard.cnrad.dev/api/848837759611306016?theme=dark" /></a>
