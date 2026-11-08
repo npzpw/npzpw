@@ -57,28 +57,55 @@ Tools
 
 ⸻
 
-📊 GitHub Statistics
+---
 
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=npzpw&show_icons=true&theme=transparent&hide_border=true&rank_icon=github" height="165" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=npzpw&layout=compact&theme=transparent&hide_border=true" height="165" />
-</p>
+## 📊 GitHub Statistics
 
-⸻
+<picture>
+  <source media="(prefers-color-scheme: dark)"
+          srcset="./assets/overview.dark.svg">
+  <img src="./assets/overview.light.svg" width="100%">
+</picture>
 
-🔥 Contribution Streak
+---
 
-<p align="center">
-  <img src="https://streak-stats.demolab.com?user=npzpw&theme=transparent&hide_border=true" />
-</p>
+## 🔥 Contribution History
 
-⸻
+<picture>
+  <source media="(prefers-color-scheme: dark)"
+          srcset="./assets/contributions.dark.svg">
+  <img src="./assets/contributions.light.svg" width="100%">
+</picture>
 
-📈 Contribution Graph
+---
 
-<p align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=npzpw&theme=github-compact&hide_border=true&area=true" width="100%" />
-</p>
+## 📈 Lifetime Contributions
+
+<picture>
+  <source media="(prefers-color-scheme: dark)"
+          srcset="./assets/lifetime.dark.svg">
+  <img src="./assets/lifetime.light.svg" width="100%">
+</picture>
+
+---
+
+## 💻 Most Used Languages
+
+<picture>
+  <source media="(prefers-color-scheme: dark)"
+          srcset="./assets/languages.dark.svg">
+  <img src="./assets/languages.light.svg" width="100%">
+</picture>
+
+---
+
+## ⚡ Contribution Momentum
+
+<picture>
+  <source media="(prefers-color-scheme: dark)"
+          srcset="./assets/momentum.dark.svg">
+  <img src="./assets/momentum.light.svg" width="100%">
+</picture>
 
 ⸻
 
