@@ -65,10 +65,30 @@ discord:
   enabled: true
   provider: "lanyard"
   user_id: "YOUR_DISCORD_USER_ID"
-  show_display_name: true
-  show_activity: true
-  show_spotify: true
-  image_style: "https://lanyard.cnrad.dev/api/{id}?theme=dark&bg=0d1117&borderRadius=10px&idleMessage=Currently%20doing%20nothing"
+
+  ui:
+    enabled: true
+
+    show_avatar: true
+    show_display_name: true
+    show_username: true
+    show_status: true
+
+    show_activity: true
+    show_spotify: true
+    show_timestamp: true
+    show_progress: true
+
+    layout: "dashboard"
+
+    theme:
+      background: "161B22"
+      card: "0D1117"
+      text: "E6EDF3"
+      muted: "8B949E"
+      accent: "5865F2"
+      border: "30363D"
+
 socials:
   enabled: true
   links:
