@@ -49,12 +49,6 @@
 
 ---
 
-## 🎮 Discord
-
-<p align="center"><a href="https://discord.com/users/848837759611306016"><img src="https://lanyard.cnrad.dev/api/848837759611306016?theme=dark&bg=0d1117&borderRadius=10px&idleMessage=Currently%20doing%20nothing" alt="Discord Presence" /></a></p>
-
----
-
 ## 🔗 Connect
 
 <p align="center"><a href="https://github.com/npzpw"><img src="https://skillicons.dev/icons?i=github" height="42" alt="GitHub" /></a> <a href="https://www.facebook.com/profile.php?id=100081792189966"><img src="https://skillicons.dev/icons?i=facebook" height="42" alt="Facebook" /></a> <a href="mailto:Pukan221bill@gmail.com"><img src="https://skillicons.dev/icons?i=gmail" height="42" alt="Email" /></a></p>
