@@ -1,0 +1,16 @@
+{
+  "name": "github-profile-generator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Config-driven GitHub profile README generator",
+  "scripts": {
+    "generate": "node scripts/generate.js"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
