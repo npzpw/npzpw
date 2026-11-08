@@ -1,25 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg"
-     width="500"
-     height="84"
-     viewBox="0 0 500 84">
-    <rect width="500" height="84" rx="12"
-          fill="#161B22"
-          stroke="#30363D"/>
-    <rect x="0" y="0" width="4" height="84"
-          rx="2" fill="#58A6FF"/>
-    <text x="22" y="30"
-          fill="#E6EDF3"
-          font-size="16"
-          font-weight="700">
-        Top Languages
-    </text>
-    
-            <text x="22" y="58" fill="#8B949E" font-size="13">
-                JavaScript
-            </text>
-            <text x="478" y="58" text-anchor="end"
-                  fill="#E6EDF3" font-size="13" font-weight="600">
-                100.0%
-            </text>
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="600"
+    height="136"
+    viewBox="0 0 600 136"
+    fill="none"
+>
+
+<defs>
+    <linearGradient id="languages-accent" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#58A6FF"/>
+        <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="languages-accent-soft" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#58A6FF" stop-opacity="0.20"/>
+        <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0.05"/>
+    </linearGradient>
+</defs>
+
+
+<rect
+    x="0.5"
+    y="0.5"
+    width="599"
+    height="135"
+    rx="16"
+    fill="#161B22"
+    stroke="#30363D"
+    stroke-opacity="1"
+/>
+
+
+        <text
+            x="22"
+            y="34"
+            fill="#E6EDF3"
+            font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+            font-size="15"
+            font-weight="700"
+        >Most Used Languages</text>
+        <text
+            x="578"
+            y="34"
+            text-anchor="end"
+            fill="#8B949E"
+            font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
+            font-size="10"
+        >LANGUAGE DISTRIBUTION</text>
+        
+            <g>
+                <text
+                    x="22"
+                    y="73"
+                    fill="#E6EDF3"
+                    font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                    font-size="12"
+                    font-weight="600"
+                >JavaScript</text>
+                <text
+                    x="578"
+                    y="73"
+                    text-anchor="end"
+                    fill="#8B949E"
+                    font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
+                    font-size="11"
+                >100.0%</text>
+                <rect
+                    x="22"
+                    y="83"
+                    width="340"
+                    height="7"
+                    rx="4"
+                    fill="#30363D"
+                />
+                <rect
+                    x="22"
+                    y="83"
+                    width="340"
+                    height="7"
+                    rx="4"
+                    fill="#58A6FF"
+                />
+            </g>
+        
         
 </svg>

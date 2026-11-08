@@ -2,7 +2,7 @@
 
 <!-- Generated automatically. Edit config.yml instead. -->
 
-<p align="center"><img src="https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=500&size=22&pause=1000&color=58A6FF&center=true&vCenter=true&width=600&lines=Full-Stack%20Developer;JavaScript%20%2F%20TypeScript%20Developer;Building%20projects%20and%20learning%20every%20day" alt="Typing SVG" /></p>
+<p align="center"><img src="https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=500&size=22&pause=1000&color=58A6FF&center=true&vCenter=true&width=600&lines=Full-Stack%20Developer;JavaScript%20%2F%20TypeScript%20Developer;Building%20projects%20and%20learning%20every%20day" alt="Typing Header" /></p>
 <p align="center"><strong>Beginner Full-Stack Developer</strong></p>
 <p align="center">ComSci student from Thailand. Interested in web development, automation, and developer tools.</p>
 
@@ -39,19 +39,24 @@
 
 ## 📊 GitHub Statistics
 
-<div align="center">
-<img src="https://github-readme-stats.vercel.app/api?username=npzpw&show_icons=true&theme=transparent&hide_border=true&rank_icon=github" height="165" alt="GitHub Statistics" />
-<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=npzpw&layout=compact&theme=transparent&hide_border=true" height="165" alt="Top Languages" />
-</div>
+<p align="center"><img src="./assets/github-stats.svg" width="100%" alt="GitHub Statistics" /></p>
+
+<p align="center"><img src="./assets/top-languages.svg" width="100%" alt="Top Languages" /></p>
+
+### 🔥 Contribution Streak
+
+<p align="center"><img src="./assets/streak.svg" width="100%" alt="Contribution Streak" /></p>
 
 ---
 
 ## 🔗 Connect
 
-<div align="center">
-<a href="https://github.com/npzpw"><img src="https://skillicons.dev/icons?i=github" height="42" alt="GitHub" /></a>
-<a href="https://www.facebook.com/profile.php?id=100081792189966"><img src="https://skillicons.dev/icons?i=facebook" height="42" alt="Facebook" /></a>
-<a href="mailto:Pukan221bill@gmail.com"><img src="https://skillicons.dev/icons?i=gmail" height="42" alt="Email" /></a>
-</div>
+<p align="center"><a href="https://github.com/npzpw"><img src="https://skillicons.dev/icons?i=github" height="42" alt="GitHub" /></a> <a href="https://www.facebook.com/profile.php?id=100081792189966"><img src="https://skillicons.dev/icons?i=facebook" height="42" alt="Facebook" /></a> <a href="mailto:Pukan221bill@gmail.com"><img src="https://skillicons.dev/icons?i=gmail" height="42" alt="Email" /></a></p>
+
+---
+
+<p align="center">
+<i>Code • Learn • Build • Improve</i>
+</p>
 
 <!-- PROFILE-GENERATOR:END -->

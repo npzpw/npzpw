@@ -1,0 +1,162 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="600"
+    height="135"
+    viewBox="0 0 600 135"
+    fill="none"
+>
+
+<defs>
+    <linearGradient id="streak-accent" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#58A6FF"/>
+        <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="streak-accent-soft" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#58A6FF" stop-opacity="0.20"/>
+        <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0.05"/>
+    </linearGradient>
+</defs>
+
+
+<rect
+    x="0.5"
+    y="0.5"
+    width="599"
+    height="134"
+    rx="16"
+    fill="#161B22"
+    stroke="#30363D"
+    stroke-opacity="1"
+/>
+
+
+        <text
+            x="18"
+            y="30"
+            fill="#E6EDF3"
+            font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+            font-size="15"
+            font-weight="700"
+        >Contribution Streak</text>
+        <text
+            x="582"
+            y="30"
+            text-anchor="end"
+            fill="#8B949E"
+            font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
+            font-size="10"
+        >ACTIVITY / 01</text>
+        
+            <g>
+                <rect
+                    x="16"
+                    y="52"
+                    width="182.66666666666666"
+                    height="67"
+                    rx="10"
+                    fill="#0D1117"
+                    stroke="#30363D"
+                />
+                <text
+                    x="28"
+                    y="70"
+                    fill="#8B949E"
+                    font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                    font-size="8"
+                    font-weight="700"
+                    letter-spacing="0.5"
+                >CURRENT STREAK</text>
+                <text
+                    x="28"
+                    y="99"
+                    fill="#E6EDF3"
+                    font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
+                    font-size="22"
+                    font-weight="700"
+                >0</text>
+                <text
+                    x="188.66666666666666"
+                    y="101"
+                    text-anchor="end"
+                    fill="#58A6FF"
+                    font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
+                    font-size="8"
+                >DAYS</text>
+            </g>
+        
+            <g>
+                <rect
+                    x="208.66666666666666"
+                    y="52"
+                    width="182.66666666666666"
+                    height="67"
+                    rx="10"
+                    fill="#0D1117"
+                    stroke="#30363D"
+                />
+                <text
+                    x="220.66666666666666"
+                    y="70"
+                    fill="#8B949E"
+                    font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                    font-size="8"
+                    font-weight="700"
+                    letter-spacing="0.5"
+                >LONGEST STREAK</text>
+                <text
+                    x="220.66666666666666"
+                    y="99"
+                    fill="#E6EDF3"
+                    font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
+                    font-size="22"
+                    font-weight="700"
+                >0</text>
+                <text
+                    x="381.3333333333333"
+                    y="101"
+                    text-anchor="end"
+                    fill="#58A6FF"
+                    font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
+                    font-size="8"
+                >DAYS</text>
+            </g>
+        
+            <g>
+                <rect
+                    x="401.3333333333333"
+                    y="52"
+                    width="182.66666666666666"
+                    height="67"
+                    rx="10"
+                    fill="#0D1117"
+                    stroke="#30363D"
+                />
+                <text
+                    x="413.3333333333333"
+                    y="70"
+                    fill="#8B949E"
+                    font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                    font-size="8"
+                    font-weight="700"
+                    letter-spacing="0.5"
+                >TOTAL CONTRIBUTIONS</text>
+                <text
+                    x="413.3333333333333"
+                    y="99"
+                    fill="#E6EDF3"
+                    font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
+                    font-size="22"
+                    font-weight="700"
+                >0</text>
+                <text
+                    x="574"
+                    y="101"
+                    text-anchor="end"
+                    fill="#58A6FF"
+                    font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
+                    font-size="8"
+                >LAST YEAR</text>
+            </g>
+        
+        
+</svg>
