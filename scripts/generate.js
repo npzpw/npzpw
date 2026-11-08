@@ -8,6 +8,11 @@
  * npm install js-yaml
  * npm run generate
  */
+import {
+    fetchPresence,
+    createDiscordSVG
+} from "../web/lanyard-core.js";
+
 import fs from "node:fs";
 import path from "node:path";
 import yaml from "js-yaml";
