@@ -10,9 +10,10 @@
  * npm install
  * npm run generate
  */
-const fs = require("node:fs");
-const path = require("node:path");
-const yaml = require("js-yaml");
+import fs from "node:fs";
+import path from "node:path";
+import yaml from "js-yaml";
+import process from "node:process";
 // ============================================================
 // PATHS
 // ============================================================
