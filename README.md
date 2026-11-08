@@ -1,56 +1,57 @@
 <!-- PROFILE-GENERATOR:START -->
 
-<div align="center">
-<h1>Npzpw</h1>
-<h3>Beginner Full-Stack Developer</h3>
-<p>ComSci student from Thailand. Interested in web development, automation, and developer tools.</p>
-<p>
-    <strong style="color:#58A6FF">
-        Full-Stack Developer • JavaScript / TypeScript Developer • Building projects and learning every day
-    </strong>
-</p>
-</div>
+<!-- Generated automatically. Edit config.yml instead. -->
 
-## About Me
+<p align="center"><img src="https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=500&size=22&pause=1000&color=58A6FF&center=true&vCenter=true&width=600&lines=Full-Stack%20Developer;JavaScript%20%2F%20TypeScript%20Developer;Building%20projects%20and%20learning%20every%20day" alt="Typing SVG" /></p>
+<p align="center"><strong>Beginner Full-Stack Developer</strong></p>
+<p align="center">ComSci student from Thailand. Interested in web development, automation, and developer tools.</p>
+
+---
+
+## 👨‍💻 About Me
 
 - 🇹🇭 Based in Thailand
 - 🎓 Computer Science student
 - 💻 Interested in full-stack development
 - ⚙️ Enjoy building tools and automation
 
-## Tech Stack
+---
 
-**Languages**
+## 🛠️ Tech Stack
 
-`JavaScript` `TypeScript` `C++` `C` `HTML` `CSS`
+### Languages
 
-**Frontend**
+<p><img src="https://skillicons.dev/icons?i=js,ts,cpp,html,css" alt="JavaScript, TypeScript, C++, C, HTML, CSS" /></p>
 
-`React` `Next.js` `Tailwind CSS` `Vite`
+### Frontend
 
-**Backend & Database**
+<p><img src="https://skillicons.dev/icons?i=react,nextjs,tailwind,vite" alt="React, Next.js, Tailwind CSS, Vite" /></p>
 
-`Node.js` `Express` `Bun` `Supabase` `MongoDB` `Firebase`
+### Backend &amp; Database
 
-**Tools**
+<p><img src="https://skillicons.dev/icons?i=nodejs,express,bun,supabase,mongodb,firebase" alt="Node.js, Express, Bun, Supabase, MongoDB, Firebase" /></p>
 
-`Git` `GitHub` `VS Code` `Windows` `Linux`
+### Tools
 
-## GitHub
+<p><img src="https://skillicons.dev/icons?i=git,github,vscode,windows,linux" alt="Git, GitHub, VS Code, Windows, Linux" /></p>
 
-<img src="./assets/github-stats.svg" alt="GitHub Stats" />
+---
 
-<img src="./assets/top-languages.svg" alt="Top Languages" />
+## 📊 GitHub Statistics
 
-**Total Contributions:** 17
+<div align="center">
+<img src="https://github-readme-stats.vercel.app/api?username=npzpw&show_icons=true&theme=transparent&hide_border=true&rank_icon=github" height="165" alt="GitHub Statistics" />
+<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=npzpw&layout=compact&theme=transparent&hide_border=true" height="165" alt="Top Languages" />
+</div>
 
-<img src="./assets/contributions.svg" alt="Contribution Graph" />
+---
 
-**Current Streak:** 1 days
-**Longest Streak:** 1 days
+## 🔗 Connect
 
-## Connect
-
-[GitHub](https://github.com/npzpw) · [Facebook](https://www.facebook.com/profile.php?id=100081792189966) · [Email](mailto:Pukan221bill@gmail.com)
+<div align="center">
+<a href="https://github.com/npzpw"><img src="https://skillicons.dev/icons?i=github" height="42" alt="GitHub" /></a>
+<a href="https://www.facebook.com/profile.php?id=100081792189966"><img src="https://skillicons.dev/icons?i=facebook" height="42" alt="Facebook" /></a>
+<a href="mailto:Pukan221bill@gmail.com"><img src="https://skillicons.dev/icons?i=gmail" height="42" alt="Email" /></a>
+</div>
 
 <!-- PROFILE-GENERATOR:END -->
