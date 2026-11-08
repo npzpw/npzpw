@@ -14,9 +14,13 @@ import fs from "node:fs";
 import path from "node:path";
 import yaml from "js-yaml";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 // ============================================================
 // PATHS
 // ============================================================
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const ROOT = path.resolve(__dirname, "..");
 const CONFIG_PATH = path.join(ROOT, "config.yml");
 const README_PATH = path.join(ROOT, "README.md");
