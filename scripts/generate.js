@@ -894,6 +894,15 @@ function generateSkillIcons(items) {
 function generateTypingHeader(profile) {
     const typing = profile.typing || {};
     const output = [];
+
+    // Main Display Name
+    if (profile.display_name) {
+        output.push(
+            `<h1 align="center">${escapeHTML(profile.display_name)}</h1>`
+        );
+    }
+
+    // Typing Animation
     if (
         enabled(typing.enabled, true) &&
         typing.lines?.length
@@ -901,9 +910,11 @@ function generateTypingHeader(profile) {
         const lines = typing.lines
             .map(line => encode(line))
             .join(";");
+
         const color = String(
             typing.color || "FFFFFF"
         ).replace(/^#/, "");
+
         const url =
             "https://readme-typing-svg.demolab.com/?" +
             "font=Fira+Code" +
@@ -915,24 +926,26 @@ function generateTypingHeader(profile) {
             "&vCenter=true" +
             "&width=600" +
             "&lines=" + lines;
+
         output.push(
-            `<p align="center"><img src="${url}" alt="Typing Header" /></p>`
-        );
-    } else if (profile.display_name) {
-        output.push(
-            `<h1 align="center">Hi, I'm ${escapeHTML(profile.display_name)}!</h1>`
+            `<p align="center"><img src="${url}" alt="Typing Animation" /></p>`
         );
     }
+
+    // Role
     if (profile.role) {
         output.push(
             `<p align="center"><strong>${escapeHTML(profile.role)}</strong></p>`
         );
     }
+
+    // Introduction
     if (profile.intro) {
         output.push(
             `<p align="center">${escapeHTML(profile.intro)}</p>`
         );
     }
+
     return output.join("\n");
 }
 // ============================================================
@@ -1067,7 +1080,9 @@ function generateGithub(config, github, contributions) {
 // ============================================================
 function generateDiscord(config) {
     const discord = config.discord || {};
+
     if (!enabled(discord.enabled, true)) return "";
+
     if (
         discord.provider !== "lanyard" ||
         !discord.user_id ||
@@ -1075,17 +1090,43 @@ function generateDiscord(config) {
     ) {
         return "";
     }
+
     const template =
         discord.image_style ||
         "https://lanyard.cnrad.dev/api/{id}?theme=dark";
-    const image = template.replaceAll(
+
+    const imageUrl = template.replaceAll(
         "{id}",
         encode(discord.user_id)
     );
+
+    const url = new URL(imageUrl);
+
+    // Display Discord global display name.
+    if (enabled(discord.show_display_name, true)) {
+        url.searchParams.set("showDisplayName", "true");
+    }
+
+    // Control Discord activities.
+    if (!enabled(discord.show_activity, true)) {
+        url.searchParams.set("hideActivity", "true");
+    }
+
+    // Control Spotify visibility.
+    if (!enabled(discord.show_spotify, true)) {
+        url.searchParams.set("hideSpotify", "true");
+    } else {
+        url.searchParams.delete("hideSpotify");
+    }
+
     return [
         "## 🎮 Discord",
         "",
-        `<p align="center"><a href="https://discord.com/users/${encode(discord.user_id)}"><img src="${image}" alt="Discord Presence" /></a></p>`
+        `<p align="center">`,
+        `<a href="https://discord.com/users/${encode(discord.user_id)}">`,
+        `<img src="${escapeHTML(url.toString())}" alt="Discord Presence" />`,
+        `</a>`,
+        `</p>`
     ].join("\n");
 }
 // ============================================================
