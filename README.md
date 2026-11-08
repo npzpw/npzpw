@@ -82,11 +82,11 @@ Tools
 
 ⸻
 
-🎮 Discord
+🎮 Discord Presence
 
 <p align="center">
   <a href="https://discord.com/users/YOUR_DISCORD_ID">
-    <img src="https://lanyard.cnrad.dev/api/YOUR_DISCORD_ID?theme=dark&bg=00000000&borderRadius=15px&idleMessage=Probably%20coding..." />
+    <img src="https://lanyard.cnrad.dev/api/YOUR_DISCORD_ID?theme=dark&bg=00000000&borderRadius=15px&idleMessage=Probably%20coding..." width="400" />
   </a>
 </p>
 
