@@ -12,18 +12,18 @@
 
 ⸻
 
- About Me
+👨‍💻 About Me
 
-* Student: ComSci Student
-* Location: Thailand
-* Role: Beginner Full-Stack Developer
-* OS: Windows 11 User
-* Interest: Developer tools, automation, web development
-* Learning: Always improving and exploring new technologies
+* 🎓 Student: ComSci Student
+* 📍 Location: Thailand
+* 💻 Role: Beginner Full-Stack Developer
+* 🖥️ OS: Windows 11 User
+* ⚙️ Interest: Developer tools, automation, web development
+* ✨ Learning: Always improving and exploring new technologies
 
 ⸻
 
- Tech Stack
+🛠️ Tech Stack
 
 Languages
 
@@ -52,12 +52,12 @@ Database
 Tools
 
 <p>
-  <img src="https://skillicons.dev/icons?i=linux,arch,git,github,vscode,npm" />
+  <img src="https://skillicons.dev/icons?i=windows,linux,git,github,vscode,npm" />
 </p>
 
 ⸻
 
- GitHub Statistics
+📊 GitHub Statistics
 
 <p align="center">
   <img src="https://github-readme-stats.vercel.app/api?username=npzpw&show_icons=true&theme=transparent&hide_border=true&rank_icon=github" height="165" />
@@ -66,7 +66,7 @@ Tools
 
 ⸻
 
- Contribution Streak
+🔥 Contribution Streak
 
 <p align="center">
   <img src="https://streak-stats.demolab.com?user=npzpw&theme=transparent&hide_border=true" />
@@ -74,7 +74,7 @@ Tools
 
 ⸻
 
- Contribution Graph
+📈 Contribution Graph
 
 <p align="center">
   <img src="https://github-readme-activity-graph.vercel.app/graph?username=npzpw&theme=github-compact&hide_border=true&area=true" width="100%" />
@@ -82,17 +82,30 @@ Tools
 
 ⸻
 
- Connect
+🎮 Discord
 
-<p>
+<p align="center">
+  <a href="https://discord.com/users/YOUR_DISCORD_ID">
+    <img src="https://lanyard.cnrad.dev/api/YOUR_DISCORD_ID?theme=dark&bg=00000000&borderRadius=15px&idleMessage=Probably%20coding..." />
+  </a>
+</p>
+
+⸻
+
+🔗 Connect
+
+<p align="center">
   <a href="mailto:Pukan221bill@gmail.com">
     <img src="https://skillicons.dev/icons?i=gmail" height="42">
   </a>
-  <a href="https://github.com/PUKAN223">
+  <a href="https://github.com/npzpw">
     <img src="https://skillicons.dev/icons?i=github" height="42">
   </a>
   <a href="https://www.facebook.com/profile.php?id=100081792189966">
     <img src="https://skillicons.dev/icons?i=facebook" height="42">
+  </a>
+  <a href="https://discord.com/users/YOUR_DISCORD_ID">
+    <img src="https://skillicons.dev/icons?i=discord" height="42">
   </a>
 </p>
 
