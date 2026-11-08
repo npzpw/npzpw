@@ -64,12 +64,11 @@ github:
 discord:
   enabled: true
   provider: "lanyard"
-  user_id: "848837759611306016"
+  user_id: "YOUR_DISCORD_USER_ID"
+  show_display_name: true
   show_activity: true
   show_spotify: true
-  # Lanyard's hosted image is used; it updates independently from this workflow.
   image_style: "https://lanyard.cnrad.dev/api/{id}?theme=dark&bg=0d1117&borderRadius=10px&idleMessage=Currently%20doing%20nothing"
-
 socials:
   enabled: true
   links:
