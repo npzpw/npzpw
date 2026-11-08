@@ -1,1343 +1,926 @@
 #!/usr/bin/env node
-/**
- * Modern GitHub Profile README Generator
- *
- * Node.js 22+
- * ES Module
- *
- * npm install js-yaml
- * npm run generate
- */
-import {
-    fetchPresence,
-    createDiscordSVG
-} from "../web/lanyard-core.js";
+“use strict”;
 
-import fs from "node:fs";
-import path from "node:path";
-import yaml from "js-yaml";
-import process from "node:process";
-import { fileURLToPath } from "node:url";
-// ============================================================
-// PATHS
-// ============================================================
+import fs from “node:fs”;
+import path from “node:path”;
+import process from “node:process”;
+import yaml from “js-yaml”;
+import { fileURLToPath } from “node:url”;
+
+import {
+fetchPresence,
+createDiscordSVG
+} from “../web/lanyard-core.js”;
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const ROOT = path.resolve(__dirname, "..");
-const CONFIG_PATH = path.join(ROOT, "config.yml");
-const README_PATH = path.join(ROOT, "README.md");
-const ASSETS_PATH = path.join(ROOT, "assets");
-const START_MARKER = "<!-- PROFILE-GENERATOR:START -->";
-const END_MARKER = "<!-- PROFILE-GENERATOR:END -->";
-// ============================================================
-// CONFIGURATION
-// ============================================================
-function loadConfig() {
-    if (!fs.existsSync(CONFIG_PATH)) {
-        throw new Error("config.yml was not found.");
-    }
-    const config = yaml.load(
-        fs.readFileSync(CONFIG_PATH, "utf8")
-    );
-    if (!config || typeof config !== "object") {
-        throw new Error("Invalid config.yml");
-    }
-    return config;
+const ROOT = path.resolve(__dirname, “..”);
+
+const CONFIG_PATH = path.join(ROOT, “config.yml”);
+const README_PATH = path.join(ROOT, “README.md”);
+const ASSETS_DIR = path.join(ROOT, “assets”);
+
+const START_MARKER = “”;
+const END_MARKER = “”;
+
+const DEFAULT_THEME = {
+background: “0D1117”,
+card: “161B22”,
+text: “E6EDF3”,
+muted: “8B949E”,
+accent: “58A6FF”,
+border: “30363D”,
+show_border: true
+};
+
+function log(message) {
+console.log([Profile Generator] ${message});
 }
-function enabled(value, fallback = true) {
-    return typeof value === "boolean" ? value : fallback;
+
+function warn(message) {
+console.warn([Warning] ${message});
 }
+
 function escapeHTML(value) {
-    return String(value ?? "").replace(
-        /[&<>"']/g,
-        char => ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&apos;"
-        })[char]
-    );
+return String(value ?? “”).replace(/[&<>”’]/g, char => ({
+“&”: “&”,
+“<”: “<”,
+“>”: “>”,
+‘”’: “"”,
+“’”: “'”
+})[char]);
 }
+
 function escapeMarkdown(value) {
-    return String(value ?? "").replace(
-        /([\\`*_{}[\]()#+\-.!|])/g,
-        "\\$1"
-    );
+return String(value ?? “”).replace(/[\`*_{}[]()#+-.!|>]/g, “\$&”);
 }
-function escapeRegex(value) {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+function escapeXML(value) {
+return String(value ?? “”).replace(/[&<>”’]/g, char => ({
+“&”: “&”,
+“<”: “<”,
+“>”: “>”,
+‘”’: “"”,
+“’”: “'”
+})[char]);
 }
-function encode(value) {
-    return encodeURIComponent(String(value ?? ""));
+
+function hex(value, fallback) {
+const result = String(value || fallback).replace(/^#/, “”);
+return /^[0-9a-fA-F]{6}$/.test(result) ? result : fallback;
 }
-function getColor(config, key, fallback) {
-    const value = String(
-        config.theme?.[key] || fallback
-    ).replace(/^#/, "");
-    return /^[0-9a-fA-F]{6}$/.test(value)
-        ? value
-        : fallback;
+
+function enabled(value, fallback = true) {
+return value === undefined ? fallback : Boolean(value);
 }
+
 function ensureDirectories() {
-    fs.mkdirSync(ASSETS_PATH, { recursive: true });
+fs.mkdirSync(ASSETS_DIR, { recursive: true });
 }
+
 function writeAsset(filename, content) {
-    fs.writeFileSync(
-        path.join(ASSETS_PATH, filename),
-        content,
-        "utf8"
+const target = path.join(ASSETS_DIR, filename);
+fs.writeFileSync(target, content.trim() + “\n”, “utf8”);
+}
+
+function removeAsset(filename) {
+const target = path.join(ASSETS_DIR, filename);
+
+if (fs.existsSync(target)) {
+    fs.unlinkSync(target);
+}
+
+}
+
+function loadConfig() {
+if (!fs.existsSync(CONFIG_PATH)) {
+throw new Error(“config.yml was not found.”);
+}
+
+const config = yaml.load(
+    fs.readFileSync(CONFIG_PATH, "utf8")
+);
+if (!config || typeof config !== "object") {
+    throw new Error("Invalid config.yml.");
+}
+config.profile ||= {};
+config.github ||= {};
+config.theme ||= {};
+config.discord ||= {};
+config.socials ||= {};
+config.about ||= {};
+config.tech_stack ||= {};
+config.sections ||= {};
+config.theme = {
+    ...DEFAULT_THEME,
+    ...config.theme
+};
+config.github.username ||= config.profile.username;
+config.profile.username ||= config.github.username;
+return config;
+
+}
+
+function theme(config) {
+const t = config.theme;
+
+return {
+    background: hex(t.background, DEFAULT_THEME.background),
+    card: hex(t.card, DEFAULT_THEME.card),
+    text: hex(t.text, DEFAULT_THEME.text),
+    muted: hex(t.muted, DEFAULT_THEME.muted),
+    accent: hex(t.accent, DEFAULT_THEME.accent),
+    border: hex(t.border, DEFAULT_THEME.border)
+};
+
+}
+
+async function fetchJSON(url, token) {
+const response = await fetch(url, {
+headers: {
+Accept: “application/vnd.github+json”,
+“X-GitHub-Api-Version”: “2022-11-28”,
+…(token ? { Authorization: Bearer ${token} } : {})
+}
+});
+
+if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(
+        `GitHub API ${response.status}: ${body.slice(0, 180)}`
     );
 }
-function removeAsset(filename) {
-    const file = path.join(ASSETS_PATH, filename);
-    if (fs.existsSync(file)) {
-        fs.unlinkSync(file);
+return response.json();
+
+}
+
+/**
+
+* GitHub profile and repositories.
+    */
+    async function getGithubProfile(username, token) {
+    if (!username) {
+    throw new Error(“GitHub username is missing.”);
     }
-}
-// ============================================================
-// THEME
-// ============================================================
-function getTheme(config) {
-    return {
-        background: getColor(config, "background", "0D1117"),
-        card: getColor(config, "card", "161B22"),
-        text: getColor(config, "text", "E6EDF3"),
-        muted: getColor(config, "muted", "8B949E"),
-        accent: getColor(config, "accent", "58A6FF"),
-        border: getColor(config, "border", "30363D"),
-        showBorder: enabled(
-            config.theme?.show_border,
-            true
-        )
-    };
-}
-function svgStart(width, height) {
-    return `
-<svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="${width}"
-    height="${height}"
-    viewBox="0 0 ${width} ${height}"
-    fill="none"
->
-`.trim();
-}
-function svgEnd() {
-    return "</svg>";
-}
-function fontFamily() {
-    return "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-}
-function monoFont() {
-    return "'JetBrains Mono', 'SFMono-Regular', Consolas, monospace";
-}
-function cardBackground(theme, width, height, radius = 16) {
-    return `
-<rect
-    x="0.5"
-    y="0.5"
-    width="${width - 1}"
-    height="${height - 1}"
-    rx="${radius}"
-    fill="#${theme.card}"
-    stroke="#${theme.border}"
-    stroke-opacity="${theme.showBorder ? 1 : 0}"
-/>
-`;
-}
-function gradientDefinitions(theme, id = "accent") {
-    return `
-<defs>
-    <linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#${theme.accent}"/>
-        <stop offset="100%" stop-color="#8B5CF6"/>
-    </linearGradient>
-    <linearGradient id="${id}-soft" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#${theme.accent}" stop-opacity="0.20"/>
-        <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0.05"/>
-    </linearGradient>
-</defs>
-`;
-}
-// ============================================================
-// HTTP
-// ============================================================
-async function fetchJSON(url, options = {}) {
-    const response = await fetch(url, {
-        ...options,
-        headers: {
-            "User-Agent": "Modern-GitHub-Profile-Generator",
-            "Accept": "application/vnd.github+json",
-            ...options.headers
-        }
-    });
-    if (!response.ok) {
-        throw new Error(
-            `HTTP ${response.status}: ${url}`
-        );
-    }
-    return response.json();
-}
-// ============================================================
-// GITHUB DATA
-// ============================================================
-async function getGithubProfile(username, token) {
-    const headers = token
-        ? { Authorization: `Bearer ${token}` }
-        : {};
     const user = await fetchJSON(
-        `https://api.github.com/users/${encode(username)}`,
-        { headers }
+    https://api.github.com/users/${encodeURIComponent(username)},
+    token
     );
     const repositories = [];
     for (let page = 1; page <= 3; page++) {
-        const items = await fetchJSON(
-            `https://api.github.com/users/${encode(username)}/repos?per_page=100&page=${page}&type=owner`,
-            { headers }
-        );
-        repositories.push(...items);
-        if (items.length < 100) break;
-    }
-    const stats = {
-        repositories: user.public_repos || 0,
-        followers: user.followers || 0,
-        stars: 0
-    };
-    const languages = {};
-    for (const repo of repositories) {
-        stats.stars += repo.stargazers_count || 0;
-    }
-    // Fetch language statistics with limited concurrency.
-    const languageRepos = repositories.filter(
-        repo => !repo.fork
+    const items = await fetchJSON(
+    https://api.github.com/users/${encodeURIComponent(username)}/repos?per_page=100&page=${page}&type=owner,
+    token
     );
-    const concurrency = 8;
-    for (
-        let i = 0;
-        i < languageRepos.length;
-        i += concurrency
-    ) {
-        const batch = languageRepos.slice(
-            i,
-            i + concurrency
-        );
-        const results = await Promise.allSettled(
-            batch.map(repo =>
-                fetchJSON(repo.languages_url, { headers })
-            )
-        );
-        for (const result of results) {
-            if (result.status !== "fulfilled") continue;
-            for (const [name, bytes] of Object.entries(result.value)) {
-                languages[name] =
-                    (languages[name] || 0) + bytes;
-            }
-        }
+
+ if (!Array.isArray(items) || items.length === 0) break;
+ repositories.push(...items);
+ if (items.length < 100) break;
+
     }
-    const totalBytes = Object.values(languages)
-        .reduce((sum, bytes) => sum + bytes, 0);
-    const languageList = Object.entries(languages)
-        .map(([name, bytes]) => ({
-            name,
-            bytes,
-            percentage: totalBytes
-                ? (bytes / totalBytes) * 100
-                : 0
-        }))
-        .sort((a, b) => b.bytes - a.bytes);
+    const languages = {};
+    for (let i = 0; i < repositories.length; i += 8) {
+    const batch = repositories.slice(i, i + 8);
+
+ const results = await Promise.all(
+     batch.map(async repo => {
+         try {
+             return await fetchJSON(repo.languages_url, token);
+         } catch {
+             return {};
+         }
+     })
+ );
+ for (const result of results) {
+     for (const [name, bytes] of Object.entries(result)) {
+         languages[name] = (languages[name] || 0) + bytes;
+     }
+ }
+
+    }
+    const stars = repositories.reduce(
+    (total, repo) => total + (repo.stargazers_count || 0),
+    0
+    );
     return {
-        ...stats,
-        languages: languageList
+    user,
+    repositories,
+    followers: user.followers || 0,
+    stars,
+    languages
     };
-}
-// ============================================================
-// CONTRIBUTIONS GRAPHQL
-// ============================================================
-async function getContributions(username, token, includePrivate) {
-    if (!token) {
-        console.warn("GITHUB_TOKEN is missing.");
-        return null;
     }
-    const query = `
-        query(
-            $login: String!,
-            $from: DateTime!,
-            $to: DateTime!,
-            $includePrivate: Boolean!
-        ) {
-            user(login: $login) {
-                contributionsCollection(
-                    from: $from,
-                    to: $to,
-                    includePrivate: $includePrivate
-                ) {
-                    contributionCalendar {
-                        totalContributions
-                        weeks {
-                            contributionDays {
-                                date
-                                contributionCount
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    `;
+
+/**
+
+* GitHub contribution calendar.
+    */
+    async function getContributions(username, token, includePrivate = false) {
+    if (!token) {
+    warn(“GITHUB_TOKEN is missing. Contributions will be unavailable.”);
+    return null;
+    }
+    const query = query($username: String!, $from: DateTime!, $to: DateTime!, $includePrivate: Boolean!) { user(login: $username) { contributionsCollection( from: $from to: $to includePrivate: $includePrivate ) { contributionCalendar { totalContributions weeks { contributionDays { date contributionCount } } } } } };
     const now = new Date();
     const from = new Date(now);
-    from.setUTCFullYear(
-        from.getUTCFullYear() - 1
-    );
-    const result = await fetchJSON(
-        "https://api.github.com/graphql",
-        {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                query,
-                variables: {
-                    login: username,
-                    from: from.toISOString(),
-                    to: now.toISOString(),
-                    includePrivate: Boolean(includePrivate)
-                }
-            })
-        }
-    );
+    from.setUTCFullYear(from.getUTCFullYear() - 1);
+    from.setUTCHours(0, 0, 0, 0);
+    const response = await fetch(“https://api.github.com/graphql”, {
+    method: “POST”,
+    headers: {
+    Authorization: Bearer ${token},
+    “Content-Type”: “application/json”
+    },
+    body: JSON.stringify({
+    query,
+    variables: {
+    username,
+    from: from.toISOString(),
+    to: now.toISOString(),
+    includePrivate
+    }
+    })
+    });
+    if (!response.ok) {
+    throw new Error(GitHub GraphQL error: ${response.status});
+    }
+    const result = await response.json();
     if (result.errors?.length) {
-        throw new Error(
-            result.errors.map(e => e.message).join("; ")
-        );
+    throw new Error(result.errors[0].message);
     }
     const calendar =
-        result.data?.user?.contributionsCollection?.contributionCalendar;
+    result.data?.user?.contributionsCollection?.contributionCalendar;
     if (!calendar) return null;
+    const days = calendar.weeks.flatMap(
+    week => week.contributionDays
+    );
     return {
-        total: calendar.totalContributions,
-        days: calendar.weeks.flatMap(
-            week => week.contributionDays
-        )
+    total: calendar.totalContributions || 0,
+    days
     };
+    }
+
+function calculateStreak(days = []) {
+if (!days.length) {
+return { current: 0, longest: 0 };
 }
-// ============================================================
-// STREAK CALCULATION
-// ============================================================
-function calculateStreak(days) {
-    if (!days?.length) {
-        return {
-            current: 0,
-            longest: 0
-        };
+
+const active = new Set(
+    days
+        .filter(day => day.contributionCount > 0)
+        .map(day => day.date)
+);
+let longest = 0;
+let run = 0;
+for (const day of days) {
+    if (active.has(day.date)) {
+        run++;
+        longest = Math.max(longest, run);
+    } else {
+        run = 0;
     }
-    let longest = 0;
-    let running = 0;
-    for (const day of days) {
-        if (day.contributionCount > 0) {
-            running++;
-            longest = Math.max(longest, running);
-        } else {
-            running = 0;
-        }
-    }
-    let current = 0;
-    let index = days.length - 1;
-    const today = new Date()
-        .toISOString()
-        .slice(0, 10);
-    if (
-        days[index].date === today &&
-        days[index].contributionCount === 0
-    ) {
-        index--;
-    }
-    for (; index >= 0; index--) {
-        if (days[index].contributionCount > 0) {
-            current++;
-        } else {
-            break;
-        }
-    }
-    return {
-        current,
-        longest
-    };
 }
-// ============================================================
-// SVG: GITHUB STATISTICS
-// ============================================================
-function createGithubStats(github, contributions, config) {
-    const theme = getTheme(config);
-    const settings = config.github?.stats || {};
-    const metrics = [];
-    if (enabled(settings.show_repositories, true)) {
-        metrics.push({
-            label: "PUBLIC REPOSITORIES",
-            value: github?.repositories ?? "—",
-            icon: "01"
-        });
-    }
-    if (enabled(settings.show_followers, true)) {
-        metrics.push({
-            label: "FOLLOWERS",
-            value: github?.followers ?? "—",
-            icon: "02"
-        });
-    }
-    if (enabled(settings.show_stars, true)) {
-        metrics.push({
-            label: "TOTAL STARS",
-            value: github?.stars ?? "—",
-            icon: "03"
-        });
-    }
-    if (enabled(config.github?.contributions?.enabled, true)) {
-        metrics.push({
-            label: "CONTRIBUTIONS",
-            value: contributions?.total ?? "—",
-            icon: "04"
-        });
-    }
-    const columns = 2;
-    const cellWidth = 270;
-    const cellHeight = 94;
-    const gap = 12;
-    const padding = 20;
-    const rows = Math.ceil(metrics.length / columns);
-    const width = padding * 2 + columns * cellWidth + gap;
-    const height = padding * 2 + rows * cellHeight + (rows - 1) * gap + 42;
-    const cards = metrics.map((metric, index) => {
-        const col = index % columns;
-        const row = Math.floor(index / columns);
-        const x = padding + col * (cellWidth + gap);
-        const y = 56 + row * (cellHeight + gap);
-        return `
-            <g>
-                <rect
-                    x="${x}"
-                    y="${y}"
-                    width="${cellWidth}"
-                    height="${cellHeight}"
-                    rx="12"
-                    fill="#${theme.background}"
-                    stroke="#${theme.border}"
-                    stroke-opacity="0.8"
-                />
-                <rect
-                    x="${x + 14}"
-                    y="${y + 14}"
-                    width="3"
-                    height="66"
-                    rx="2"
-                    fill="url(#stats-accent)"
-                />
-                <text
-                    x="${x + 29}"
-                    y="${y + 35}"
-                    fill="#${theme.muted}"
-                    font-family="${fontFamily()}"
-                    font-size="10"
-                    font-weight="700"
-                    letter-spacing="1.1"
-                >${escapeHTML(metric.label)}</text>
-                <text
-                    x="${x + 29}"
-                    y="${y + 68}"
-                    fill="#${theme.text}"
-                    font-family="${monoFont()}"
-                    font-size="25"
-                    font-weight="700"
-                >${escapeHTML(metric.value)}</text>
-                <text
-                    x="${x + cellWidth - 17}"
-                    y="${y + 28}"
-                    text-anchor="end"
-                    fill="#${theme.muted}"
-                    opacity="0.55"
-                    font-family="${monoFont()}"
-                    font-size="10"
-                >${metric.icon}</text>
-            </g>
-        `;
-    }).join("");
-    return [
-        svgStart(width, height),
-        gradientDefinitions(theme, "stats-accent"),
-        cardBackground(theme, width, height),
-        `
-        <text
-            x="22"
-            y="34"
-            fill="#${theme.text}"
-            font-family="${fontFamily()}"
-            font-size="15"
-            font-weight="700"
-        >GitHub Overview</text>
-        <text
-            x="${width - 22}"
-            y="34"
-            text-anchor="end"
-            fill="#${theme.muted}"
-            font-family="${monoFont()}"
-            font-size="10"
-        >PROFILE / 01</text>
-        ${cards}
-        `,
-        svgEnd()
-    ].join("\n");
+const today = new Date().toISOString().slice(0, 10);
+const yesterdayDate = new Date();
+yesterdayDate.setUTCDate(yesterdayDate.getUTCDate() - 1);
+const yesterday = yesterdayDate.toISOString().slice(0, 10);
+let cursor = active.has(today) ? today : yesterday;
+let current = 0;
+while (active.has(cursor)) {
+    current++;
+    const date = new Date(`${cursor}T00:00:00Z`);
+    date.setUTCDate(date.getUTCDate() - 1);
+    cursor = date.toISOString().slice(0, 10);
 }
-// ============================================================
-// SVG: TOP LANGUAGES
-// ============================================================
-function createTopLanguages(github, config) {
-    const theme = getTheme(config);
-    const limit = Math.max(
-        1,
-        Math.min(
-            15,
-            Number(config.github?.languages?.limit || 8)
-        )
-    );
-    const languages = (github?.languages || [])
-        .slice(0, limit);
-    if (!languages.length) return null;
-    const width = 600;
-    const rowHeight = 48;
-    const height = 70 + languages.length * rowHeight + 18;
-    const palette = [
-        theme.accent,
-        "A78BFA",
-        "34D399",
-        "FBBF24",
-        "F472B6",
-        "22D3EE",
-        "FB923C",
-        "818CF8",
-        "4ADE80",
-        "E879F9"
-    ];
-    const rows = languages.map((language, index) => {
-        const y = 73 + index * rowHeight;
-        const percentage = Math.max(
-            0,
-            Math.min(100, language.percentage)
-        );
-        const barWidth = 340;
-        const color = palette[index % palette.length];
-        return `
-            <g>
-                <text
-                    x="22"
-                    y="${y}"
-                    fill="#${theme.text}"
-                    font-family="${fontFamily()}"
-                    font-size="12"
-                    font-weight="600"
-                >${escapeHTML(language.name)}</text>
-                <text
-                    x="${width - 22}"
-                    y="${y}"
-                    text-anchor="end"
-                    fill="#${theme.muted}"
-                    font-family="${monoFont()}"
-                    font-size="11"
-                >${percentage.toFixed(1)}%</text>
-                <rect
-                    x="22"
-                    y="${y + 10}"
-                    width="${barWidth}"
-                    height="7"
-                    rx="4"
-                    fill="#${theme.border}"
-                />
-                <rect
-                    x="22"
-                    y="${y + 10}"
-                    width="${barWidth * percentage / 100}"
-                    height="7"
-                    rx="4"
-                    fill="#${color}"
-                />
-            </g>
-        `;
-    }).join("");
-    return [
-        svgStart(width, height),
-        gradientDefinitions(theme, "languages-accent"),
-        cardBackground(theme, width, height),
-        `
-        <text
-            x="22"
-            y="34"
-            fill="#${theme.text}"
-            font-family="${fontFamily()}"
-            font-size="15"
-            font-weight="700"
-        >Most Used Languages</text>
-        <text
-            x="${width - 22}"
-            y="34"
-            text-anchor="end"
-            fill="#${theme.muted}"
-            font-family="${monoFont()}"
-            font-size="10"
-        >LANGUAGE DISTRIBUTION</text>
-        ${rows}
-        `,
-        svgEnd()
-    ].join("\n");
+return { current, longest };
+
 }
-// ============================================================
-// SVG: CONTRIBUTION HEATMAP
-// ============================================================
-function createContributionGraph(days, config) {
-    if (!days?.length) return null;
-    const theme = getTheme(config);
-    const cell = 11;
-    const gap = 3;
-    const step = cell + gap;
-    const firstDate = new Date(
-        `${days[0].date}T00:00:00Z`
-    );
-    const offset = firstDate.getUTCDay();
-    const columns = Math.ceil(
-        (offset + days.length) / 7
-    );
-    const left = 22;
-    const top = 56;
-    const width = Math.max(
-        600,
-        left * 2 + columns * step
-    );
-    const height = 165;
-    const max = Math.max(
-        1,
-        ...days.map(day => day.contributionCount)
-    );
-    const monthLabels = [];
-    const seenMonths = new Set();
-    const cells = days.map((day, index) => {
-        const date = new Date(
-            `${day.date}T00:00:00Z`
-        );
-        const position = offset + index;
-        const column = Math.floor(position / 7);
-        const weekday = date.getUTCDay();
-        const x = left + column * step;
-        const y = top + weekday * step;
-        const count = day.contributionCount;
-        const intensity = count === 0
-            ? 0
-            : Math.min(
-                1,
-                0.25 + (count / max) * 0.75
-            );
-        const opacity = count === 0
-            ? 0.13
-            : intensity;
-        const monthKey =
-            `${date.getUTCFullYear()}-${date.getUTCMonth()}`;
-        if (
-            date.getUTCDate() <= 7 &&
-            !seenMonths.has(monthKey)
-        ) {
-            seenMonths.add(monthKey);
-            monthLabels.push(`
-                <text
-                    x="${x}"
-                    y="45"
-                    fill="#${theme.muted}"
-                    font-family="${fontFamily()}"
-                    font-size="10"
-                >${date.toLocaleString("en-US", {
-                    month: "short",
-                    timeZone: "UTC"
-                })}</text>
-            `);
-        }
-        return `
-            <rect
-                x="${x}"
-                y="${y}"
-                width="${cell}"
-                height="${cell}"
-                rx="3"
-                fill="#${theme.accent}"
-                opacity="${opacity.toFixed(2)}"
-            >
-                <title>${escapeHTML(day.date)}: ${count} contributions</title>
-            </rect>
-        `;
-    }).join("");
-    const weekdays = [
-        { label: "Mon", day: 1 },
-        { label: "Wed", day: 3 },
-        { label: "Fri", day: 5 }
-    ].map(item => `
-        <text
-            x="22"
-            y="${top + item.day * step + 9}"
-            fill="#${theme.muted}"
-            font-family="${fontFamily()}"
-            font-size="9"
-        >${item.label}</text>
-    `).join("");
-    return [
-        svgStart(width, height),
-        gradientDefinitions(theme, "contribution-accent"),
-        cardBackground(theme, width, height),
-        `
-        <text
-            x="22"
-            y="25"
-            fill="#${theme.text}"
-            font-family="${fontFamily()}"
-            font-size="15"
-            font-weight="700"
-        >Contribution Activity</text>
-        <text
-            x="${width - 22}"
-            y="25"
-            text-anchor="end"
-            fill="#${theme.muted}"
-            font-family="${monoFont()}"
-            font-size="10"
-        >LAST 12 MONTHS</text>
-        ${monthLabels.join("")}
-        ${weekdays}
-        ${cells}
-        <text
-            x="${width - 150}"
-            y="${height - 13}"
-            fill="#${theme.muted}"
-            font-family="${fontFamily()}"
-            font-size="9"
-        >Less</text>
-        ${[0.13, 0.4, 0.6, 0.8, 1].map((opacity, index) => `
-            <rect
-                x="${width - 112 + index * 17}"
-                y="${height - 22}"
-                width="11"
-                height="11"
-                rx="3"
-                fill="#${theme.accent}"
-                opacity="${opacity}"
-            />
-        `).join("")}
-        <text
-            x="${width - 15}"
-            y="${height - 13}"
-            text-anchor="end"
-            fill="#${theme.muted}"
-            font-family="${fontFamily()}"
-            font-size="9"
-        >More</text>
-        `,
-        svgEnd()
-    ].join("\n");
+
+function svgShell(width, height, config, content) {
+const t = theme(config);
+const border = config.theme.show_border
+? stroke="#${t.border}"
+: “”;
+
+return `
+<rect width="${width}" height="${height}"
+    rx="14" fill="#${t.background}" ${border}/>
+${content}
+</svg>
+`;
 }
-// ============================================================
-// SVG: CONTRIBUTION STREAK
-// ============================================================
-function createStreakCard(contributions, config) {
-    const theme = getTheme(config);
-    const streak = calculateStreak(
-        contributions?.days || []
-    );
-    const metrics = [
-        {
-            label: "CURRENT STREAK",
-            value: streak.current,
-            suffix: "DAYS",
-            icon: "01"
-        },
-        {
-            label: "LONGEST STREAK",
-            value: streak.longest,
-            suffix: "DAYS",
-            icon: "02"
-        },
-        {
-            label: "TOTAL CONTRIBUTIONS",
-            value: contributions?.total ?? 0,
-            suffix: "LAST YEAR",
-            icon: "03"
-        }
-    ];
-    const width = 600;
-    const height = 135;
+
+/**
+
+* GitHub statistics card.
+    */
+    function createGithubStats(github, contributions, config) {
+    const t = theme(config);
+    const stats = config.github.stats || {};
+    const items = [];
+    if (enabled(stats.show_repositories)) {
+    items.push({
+    label: “Repositories”,
+    value: github.repositories.length,
+    icon: “⌘”
+    });
+    }
+    if (enabled(stats.show_followers)) {
+    items.push({
+    label: “Followers”,
+    value: github.followers,
+    icon: “◎”
+    });
+    }
+    if (enabled(stats.show_stars)) {
+    items.push({
+    label: “Total Stars”,
+    value: github.stars,
+    icon: “☆”
+    });
+    }
+    if (contributions && enabled(config.github.contributions?.show_total)) {
+    items.push({
+    label: “Contributions”,
+    value: contributions.total,
+    icon: “▦”
+    });
+    }
+    const width = 560;
+    const height = 112;
     const gap = 10;
-    const padding = 16;
-    const cardWidth = (width - padding * 2 - gap * 2) / 3;
-    const cards = metrics.map((metric, index) => {
-        const x = padding + index * (cardWidth + gap);
-        return `
-            <g>
-                <rect
-                    x="${x}"
-                    y="52"
-                    width="${cardWidth}"
-                    height="67"
-                    rx="10"
-                    fill="#${theme.background}"
-                    stroke="#${theme.border}"
-                />
-                <text
-                    x="${x + 12}"
-                    y="70"
-                    fill="#${theme.muted}"
-                    font-family="${fontFamily()}"
-                    font-size="8"
-                    font-weight="700"
-                    letter-spacing="0.5"
-                >${metric.label}</text>
-                <text
-                    x="${x + 12}"
-                    y="99"
-                    fill="#${theme.text}"
-                    font-family="${monoFont()}"
-                    font-size="22"
-                    font-weight="700"
-                >${escapeHTML(metric.value)}</text>
-                <text
-                    x="${x + cardWidth - 10}"
-                    y="101"
-                    text-anchor="end"
-                    fill="#${theme.accent}"
-                    font-family="${monoFont()}"
-                    font-size="8"
-                >${metric.suffix}</text>
-            </g>
-        `;
-    }).join("");
-    return [
-        svgStart(width, height),
-        gradientDefinitions(theme, "streak-accent"),
-        cardBackground(theme, width, height),
-        `
-        <text
-            x="18"
-            y="30"
-            fill="#${theme.text}"
-            font-family="${fontFamily()}"
-            font-size="15"
-            font-weight="700"
-        >Contribution Streak</text>
-        <text
-            x="${width - 18}"
-            y="30"
-            text-anchor="end"
-            fill="#${theme.muted}"
-            font-family="${monoFont()}"
-            font-size="10"
-        >ACTIVITY / 01</text>
-        ${cards}
-        `,
-        svgEnd()
-    ].join("\n");
-}
-// ============================================================
-// SKILL ICONS
-// ============================================================
-const SKILL_ICON_ALIASES = {
-    javascript: "js",
-    typescript: "ts",
-    "next.js": "nextjs",
-    "tailwind css": "tailwind",
-    "node.js": "nodejs",
-    "visual studio code": "vscode",
-    "vs code": "vscode",
-    "c++": "cpp",
-    "c#": "cs",
-    html: "html",
-    css: "css",
-    express: "express",
-    mongodb: "mongodb",
-    firebase: "firebase",
-    supabase: "supabase",
-    github: "github",
-    windows: "windows",
-    linux: "linux",
-    npm: "npm",
-    bun: "bun",
-    deno: "deno",
-    react: "react",
-    vite: "vite",
-    git: "git",
-    python: "python",
-    java: "java",
-    php: "php",
-    mysql: "mysql",
-    postgresql: "postgres",
-    redis: "redis",
-    docker: "docker",
-    figma: "figma"
-};
-function getSkillIcon(item) {
-    return SKILL_ICON_ALIASES[
-        String(item).toLowerCase()
-    ] || null;
-}
+    const cardWidth = (width - 36 - gap * (items.length - 1)) /
+    Math.max(items.length, 1);
+    const cards = items.map((item, index) => {
+    const x = 18 + index * (cardWidth + gap);
+
+ return `
+     <rect x="${x}" y="17" width="${cardWidth}" height="78"
+         rx="11" fill="#${t.card}" stroke="#${t.border}"/>
+     <text x="${x + 16}" y="43"
+         font-size="17" fill="#${t.accent}"
+         font-family="Arial">${item.icon}</text>
+     <text x="${x + 43}" y="43"
+         font-size="19" font-weight="700"
+         fill="#${t.text}" font-family="Arial">
+         ${escapeXML(item.value)}
+     </text>
+     <text x="${x + 16}" y="72"
+         font-size="10" fill="#${t.muted}"
+         font-family="Arial">
+         ${escapeXML(item.label)}
+     </text>
+ `;
+
+    }).join(””);
+    return svgShell(width, height, config, cards);
+    }
+
+/**
+
+* Top programming languages.
+    */
+    function createTopLanguages(github, config) {
+    const t = theme(config);
+    const limit = Math.max(1, Number(config.github.languages?.limit) || 8);
+    const languages = Object.entries(github.languages)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit);
+    const total = languages.reduce((sum, item) => sum + item[1], 0) || 1;
+    const palette = [
+    “#58A6FF”, “#A371F7”, “#3FB950”, “#D29922”,
+    “#F778BA”, “#79C0FF”, “#FFA657”, “#56D4DD”
+    ];
+    let offset = 0;
+    const bars = languages.map(([name, bytes], index) => {
+    const percent = bytes / total * 100;
+    const width = 520 * percent / 100;
+    const x = 20 + offset;
+
+ offset += width;
+ return `
+     <rect x="${x}" y="19" width="${width}" height="9"
+         fill="${palette[index % palette.length]}"/>
+ `;
+
+    }).join(””);
+    const rows = languages.map(([name, bytes], index) => {
+    const percent = (bytes / total * 100).toFixed(1);
+    const y = 57 + Math.floor(index / 2) * 27;
+    const x = index % 2 === 0 ? 22 : 286;
+
+ return `
+     <circle cx="${x}" cy="${y - 4}" r="4"
+         fill="${palette[index % palette.length]}"/>
+     <text x="${x + 12}" y="${y}"
+         fill="#${t.text}" font-size="11"
+         font-family="Arial">
+         ${escapeXML(name)}
+     </text>
+     <text x="${x + 245}" y="${y}"
+         fill="#${t.muted}" font-size="10"
+         text-anchor="end" font-family="Arial">
+         ${percent}%
+     </text>
+ `;
+
+    }).join(””);
+    return svgShell(560, 75 + Math.ceil(languages.length / 2) * 27, config, `
+    MOST USED LANGUAGES
+
+ <clipPath id="languageBar">
+     <rect x="20" y="19" width="520" height="9" rx="4"/>
+ </clipPath>
+ <g clip-path="url(#languageBar)">
+     ${bars}
+ </g>
+ ${rows}
+
+    `);
+    }
+
+/**
+
+* Contribution graph.
+    */
+    function createContributionGraph(days, config) {
+    const t = theme(config);
+    const cell = 10;
+    const gap = 3;
+    const startX = 22;
+    const startY = 38;
+    const max = Math.max(
+    1,
+    …days.map(day => day.contributionCount)
+    );
+    const cells = days.map((day, index) => {
+    const date = new Date(${day.date}T00:00:00Z);
+    const week = Math.floor(index / 7);
+    const weekday = date.getUTCDay();
+
+ const x = startX + week * (cell + gap);
+ const y = startY + weekday * (cell + gap);
+ const count = day.contributionCount;
+ const ratio = count / max;
+ let fill = "#${t.card}";
+ if (count > 0) {
+     fill = ratio > 0.75
+         ? "#1F6FEB"
+         : ratio > 0.5
+             ? "#388BFD"
+             : ratio > 0.25
+                 ? "#58A6FF"
+                 : "#A5D6FF";
+ }
+ return `
+     <rect x="${x}" y="${y}"
+         width="${cell}" height="${cell}"
+         rx="2" fill="${fill}">
+         <title>${escapeXML(day.date)}: ${count} contributions</title>
+     </rect>
+ `;
+
+    }).join(””);
+    const width = Math.max(560, startX * 2 + 53 * (cell + gap));
+    return svgShell(width, 140, config, `
+    Contribution Activity
+ ${cells}
+ <text x="20" y="130" fill="#${t.muted}"
+     font-size="9" font-family="Arial">
+     Less
+ </text>
+ <rect x="48" y="122" width="9" height="9"
+     rx="2" fill="#${t.card}"/>
+ <rect x="61" y="122" width="9" height="9"
+     rx="2" fill="#A5D6FF"/>
+ <rect x="74" y="122" width="9" height="9"
+     rx="2" fill="#58A6FF"/>
+ <rect x="87" y="122" width="9" height="9"
+     rx="2" fill="#388BFD"/>
+ <rect x="100" y="122" width="9" height="9"
+     rx="2" fill="#1F6FEB"/>
+ <text x="117" y="130" fill="#${t.muted}"
+     font-size="9" font-family="Arial">
+     More
+ </text>
+
+    `);
+    }
+
+/**
+
+* Contribution streak card.
+    */
+    function createStreakCard(contributions, config) {
+    const t = theme(config);
+    const streak = calculateStreak(contributions?.days || []);
+    return svgShell(560, 112, config, `
+ <rect x="288" y="17" width="254" height="78"
+     rx="11" fill="#${t.card}" stroke="#${t.border}"/>
+ <text x="36" y="43" fill="#${t.accent}"
+     font-size="11" font-family="Arial">
+     CURRENT STREAK
+ </text>
+ <text x="36" y="76" fill="#${t.text}"
+     font-size="26" font-weight="700"
+     font-family="Arial">
+     ${streak.current} days
+ </text>
+ <text x="306" y="43" fill="#${t.accent}"
+     font-size="11" font-family="Arial">
+     LONGEST STREAK
+ </text>
+ <text x="306" y="76" fill="#${t.text}"
+     font-size="26" font-weight="700"
+     font-family="Arial">
+     ${streak.longest} days
+ </text>
+
+    `);
+    }
+
+/**
+
+* Skill icon aliases.
+    */
+    const SKILL_ICON_ALIASES = {
+    “JavaScript”: “js”,
+    “TypeScript”: “ts”,
+    “C++”: “cpp”,
+    “C”: “c”,
+    “HTML”: “html”,
+    “CSS”: “css”,
+    “React”: “react”,
+    “Next.js”: “nextjs”,
+    “Tailwind CSS”: “tailwind”,
+    “Vite”: “vite”,
+    “Node.js”: “nodejs”,
+    “Express”: “express”,
+    “Bun”: “bun”,
+    “Supabase”: “supabase”,
+    “MongoDB”: “mongodb”,
+    “Firebase”: “firebase”,
+    “Git”: “git”,
+    “GitHub”: “github”,
+    “VS Code”: “vscode”,
+    “Windows”: “windows”,
+    “Linux”: “linux”
+    };
+
 function generateSkillIcons(items) {
-    const icons = items
-        .map(getSkillIcon)
-        .filter(Boolean);
-    if (!icons.length) {
-        return items
-            .map(item => `\`${escapeMarkdown(item)}\``)
-            .join(" ");
-    }
-    return `<img src="https://skillicons.dev/icons?i=${icons.join(",")}" alt="${escapeHTML(items.join(", "))}" />`;
+const icons = items
+.map(item => SKILL_ICON_ALIASES[item])
+.filter(Boolean);
+
+if (!icons.length) return "";
+return `
+    <img
+        src="https://skillicons.dev/icons?i=${icons.join(",")}&theme=dark"
+        alt="${escapeHTML(items.join(", "))}"
+    />
+`;
+
 }
-// ============================================================
-// TYPING HEADER
-// ============================================================
+
+/**
+
+* Profile header.
+* Display name is independent of Discord/Lanyard.
+    */
+    function generateProfileHeader(profile) {
+    const name = profile.display_name || profile.username || “Developer”;
+    const role = profile.role || “”;
+    return `
+
+<h1 align="center">${escapeHTML(name)}</h1>
+${role ? `<p align="center"><strong>${escapeHTML(role)}</strong></p>` : ""}
+`;
+}
+
 function generateTypingHeader(profile) {
-    const typing = profile.typing || {};
-    const output = [];
+const typing = profile.typing || {};
 
-    // Main Display Name
-    if (profile.display_name) {
-        output.push(
-            `<h1 align="center">${escapeHTML(profile.display_name)}</h1>`
-        );
-    }
-
-    // Typing Animation
-    if (
-        enabled(typing.enabled, true) &&
-        typing.lines?.length
-    ) {
-        const lines = typing.lines
-            .map(line => encode(line))
-            .join(";");
-
-        const color = String(
-            typing.color || "FFFFFF"
-        ).replace(/^#/, "");
-
-        const url =
-            "https://readme-typing-svg.demolab.com/?" +
-            "font=Fira+Code" +
-            "&weight=500" +
-            "&size=22" +
-            "&pause=1000" +
-            "&color=" + encode(color) +
-            "&center=true" +
-            "&vCenter=true" +
-            "&width=600" +
-            "&lines=" + lines;
-
-        output.push(
-            `<p align="center"><img src="${url}" alt="Typing Animation" /></p>`
-        );
-    }
-
-    // Role
-    if (profile.role) {
-        output.push(
-            `<p align="center"><strong>${escapeHTML(profile.role)}</strong></p>`
-        );
-    }
-
-    // Introduction
-    if (profile.intro) {
-        output.push(
-            `<p align="center">${escapeHTML(profile.intro)}</p>`
-        );
-    }
-
-    return output.join("\n");
+if (!enabled(typing.enabled) || !typing.lines?.length) {
+    return "";
 }
-// ============================================================
-// ABOUT ME
-// ============================================================
+const lines = typing.lines
+    .map(line => encodeURIComponent(line))
+    .join(";");
+const color = hex(typing.color, "58A6FF");
+return `
+<p align="center">
+    <img
+        src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=19&pause=1000&color=${color}&center=true&vCenter=true&width=650&lines=${lines}"
+        alt="Typing introduction"
+    />
+</p>
+`;
+}
+
 function generateAbout(config) {
-    const about = config.about || {};
-    if (!enabled(about.enabled, true)) return "";
-    const items = about.items || [];
-    if (!items.length) return "";
-    return [
-        "## 👨‍💻 About Me",
-        "",
-        ...items.map(item => `- ${item}`)
-    ].join("\n");
+if (!enabled(config.about.enabled)) return “”;
+
+const items = config.about.items || [];
+return `
+
+About Me
+
+${items.map(item => - ${item}).join(”\n”)}
+`;
 }
-// ============================================================
-// TECH STACK
-// ============================================================
+
 function generateTechStack(config) {
-    const stack = config.tech_stack || {};
-    if (!enabled(stack.enabled, true)) return "";
-    const output = ["## 🛠️ Tech Stack"];
-    for (const category of stack.categories || []) {
-        const items = category.items || [];
-        if (!items.length) continue;
-        output.push("");
-        output.push(`### ${escapeHTML(category.title || "Technologies")}`);
-        output.push("");
-        output.push(
-            `<p>${generateSkillIcons(items)}</p>`
-        );
-    }
-    return output.length > 1
-        ? output.join("\n")
-        : "";
+if (!enabled(config.tech_stack.enabled)) return “”;
+
+const categories = config.tech_stack.categories || [];
+const output = categories.map(category => {
+    return `
+
+${escapeHTML(category.title)}
+
+<p>
+    ${generateSkillIcons(category.items || [])}
+</p>
+`;
+    }).join("\n");
+return `
+
+Tech Stack
+
+${output}
+`;
 }
-// ============================================================
-// GITHUB ASSETS + README SECTION
-// ============================================================
+
 function generateGithub(config, github, contributions) {
-    const settings = config.github || {};
-    const statsSettings = settings.stats || {};
-    const languageSettings = settings.languages || {};
-    const contributionSettings = settings.contributions || {};
-    const output = ["## 📊 GitHub Statistics"];
-    if (enabled(statsSettings.enabled, true)) {
-        const stats = createGithubStats(
-            github,
-            contributions,
-            config
+const settings = config.github;
+
+if (!enabled(settings.stats?.enabled)) {
+    removeAsset("github-stats.svg");
+} else {
+    writeAsset(
+        "github-stats.svg",
+        createGithubStats(github, contributions, config)
+    );
+}
+if (!enabled(settings.languages?.enabled)) {
+    removeAsset("top-languages.svg");
+} else {
+    writeAsset(
+        "top-languages.svg",
+        createTopLanguages(github, config)
+    );
+}
+if (!enabled(settings.contributions?.enabled) || !contributions) {
+    removeAsset("contributions.svg");
+    removeAsset("streak.svg");
+} else {
+    if (enabled(settings.contributions.show_graph)) {
+        writeAsset(
+            "contributions.svg",
+            createContributionGraph(contributions.days, config)
         );
-        writeAsset("github-stats.svg", stats);
-        output.push("");
-        output.push(
-            '<p align="center"><img src="./assets/github-stats.svg" width="100%" alt="GitHub Statistics" /></p>'
-        );
-    } else {
-        removeAsset("github-stats.svg");
-    }
-    if (enabled(languageSettings.enabled, true)) {
-        const languages = createTopLanguages(
-            github,
-            config
-        );
-        if (languages) {
-            writeAsset("top-languages.svg", languages);
-            output.push("");
-            output.push(
-                '<p align="center"><img src="./assets/top-languages.svg" width="100%" alt="Top Languages" /></p>'
-            );
-        } else {
-            removeAsset("top-languages.svg");
-        }
-    } else {
-        removeAsset("top-languages.svg");
-    }
-    if (enabled(contributionSettings.enabled, true)) {
-        if (enabled(contributionSettings.show_graph, true)) {
-            const graph = createContributionGraph(
-                contributions?.days,
-                config
-            );
-            if (graph) {
-                writeAsset("contributions.svg", graph);
-                output.push("");
-                output.push("### 📈 Contribution Activity");
-                output.push("");
-                output.push(
-                    '<p align="center"><img src="./assets/contributions.svg" width="100%" alt="Contribution Activity" /></p>'
-                );
-            } else {
-                removeAsset("contributions.svg");
-            }
-        } else {
-            removeAsset("contributions.svg");
-        }
-        if (enabled(contributionSettings.show_streak, true)) {
-            const streak = createStreakCard(
-                contributions,
-                config
-            );
-            writeAsset("streak.svg", streak);
-            output.push("");
-            output.push("### 🔥 Contribution Streak");
-            output.push("");
-            output.push(
-                '<p align="center"><img src="./assets/streak.svg" width="100%" alt="Contribution Streak" /></p>'
-            );
-        } else {
-            removeAsset("streak.svg");
-        }
-        if (
-            enabled(contributionSettings.show_total, true) &&
-            contributions
-        ) {
-            output.push("");
-            output.push(
-                `**Total Contributions:** ${contributions.total.toLocaleString("en-US")}`
-            );
-        }
     } else {
         removeAsset("contributions.svg");
+    }
+    if (enabled(settings.contributions.show_streak)) {
+        writeAsset(
+            "streak.svg",
+            createStreakCard(contributions, config)
+        );
+    } else {
         removeAsset("streak.svg");
     }
-    return output.length > 1
-        ? output.join("\n")
-        : "";
 }
-// ============================================================
-// DISCORD LANYARD
-// ============================================================
-function generateDiscord(config) {
-    const discord = config.discord || {};
-
-    if (!enabled(discord.enabled, true)) return "";
-
-    if (
-        discord.provider !== "lanyard" ||
-        !discord.user_id ||
-        discord.user_id === "YOUR_DISCORD_USER_ID"
-    ) {
-        return "";
+const output = [];
+if (enabled(settings.stats?.enabled)) {
+    output.push(`
+<p align="center">
+    <img src="./assets/github-stats.svg" alt="GitHub Statistics"/>
+</p>
+`);
     }
-
-    const template =
-        discord.image_style ||
-        "https://lanyard.cnrad.dev/api/{id}?theme=dark";
-
-    const imageUrl = template.replaceAll(
-        "{id}",
-        encode(discord.user_id)
-    );
-
-    const url = new URL(imageUrl);
-
-    // Display Discord global display name.
-    if (enabled(discord.show_display_name, true)) {
-        url.searchParams.set("showDisplayName", "true");
+if (enabled(settings.languages?.enabled)) {
+    output.push(`
+<p align="center">
+    <img src="./assets/top-languages.svg" alt="Top Languages"/>
+</p>
+`);
     }
-
-    // Control Discord activities.
-    if (!enabled(discord.show_activity, true)) {
-        url.searchParams.set("hideActivity", "true");
-    }
-
-    // Control Spotify visibility.
-    if (!enabled(discord.show_spotify, true)) {
-        url.searchParams.set("hideSpotify", "true");
-    } else {
-        url.searchParams.delete("hideSpotify");
-    }
-
-    return [
-        "## 🎮 Discord",
-        "",
-        `<p align="center">`,
-        `<a href="https://discord.com/users/${encode(discord.user_id)}">`,
-        `<img src="${escapeHTML(url.toString())}" alt="Discord Presence" />`,
-        `</a>`,
-        `</p>`
-    ].join("\n");
-}
-// ============================================================
-// SOCIAL LINKS
-// ============================================================
-const SOCIAL_ICONS = {
-    github: "github",
-    facebook: "facebook",
-    discord: "discord",
-    gmail: "gmail",
-    email: "gmail",
-    youtube: "youtube",
-    instagram: "instagram",
-    twitter: "twitter",
-    x: "x",
-    linkedin: "linkedin",
-    twitch: "twitch"
-};
-function generateSocials(config) {
-    const socials = config.socials || {};
-    if (!enabled(socials.enabled, true)) return "";
-    const links = (socials.links || [])
-        .filter(link => link.label && link.url)
-        .map(link => {
-            const icon = SOCIAL_ICONS[
-                String(link.label).toLowerCase()
-            ];
-            if (!icon) {
-                return `[${escapeMarkdown(link.label)}](${link.url})`;
-            }
-            return [
-                `<a href="${escapeHTML(link.url)}">`,
-                `<img src="https://skillicons.dev/icons?i=${icon}" height="42" alt="${escapeHTML(link.label)}" />`,
-                "</a>"
-            ].join("");
-        });
-    if (!links.length) return "";
-    return [
-        "## 🔗 Connect",
-        "",
-        `<p align="center">${links.join(" ")}</p>`
-    ].join("\n");
-}
-// ============================================================
-// FOOTER
-// ============================================================
-function generateFooter() {
-    return [
-        '<p align="center">',
-        "<i>Code • Learn • Build • Improve</i>",
-        "</p>"
-    ].join("\n");
-}
-// ============================================================
-// README GENERATOR
-// ============================================================
-function generateSections(config, github, contributions) {
-    const profile = config.profile || {};
-    const sections = {
-        typing: generateTypingHeader(profile),
-        about: generateAbout(config),
-        tech_stack: generateTechStack(config),
-        github: generateGithub(
-            config,
-            github,
-            contributions
-        ),
-        discord: generateDiscord(config),
-        socials: generateSocials(config),
-        footer: generateFooter()
-    };
-    const order = config.sections?.order || [
-        "typing",
-        "about",
-        "tech_stack",
-        "github",
-        "discord",
-        "socials",
-        "footer"
-    ];
-    const selected = order
-        .map(name => {
-            if (!(name in sections)) {
-                console.warn(
-                    `Unknown section in config.yml: ${name}`
-                );
-                return "";
-            }
-            return sections[name];
-        })
-        .filter(Boolean);
-    // Always append the footer unless explicitly included.
-    if (
-        !order.includes("footer") &&
-        sections.footer
-    ) {
-        selected.push(sections.footer);
-    }
-    return selected.join("\n\n---\n\n");
-}
-// ============================================================
-// README UPDATE
-// ============================================================
-function updateReadme(content) {
-    const existing = fs.existsSync(README_PATH)
-        ? fs.readFileSync(README_PATH, "utf8")
-        : "";
-    const block = [
-        START_MARKER,
-        "",
-        "<!-- Generated automatically. Edit config.yml instead. -->",
-        "",
-        content,
-        "",
-        END_MARKER
-    ].join("\n");
-    const pattern = new RegExp(
-        `${escapeRegex(START_MARKER)}[\\s\\S]*?${escapeRegex(END_MARKER)}`
-    );
-    let output;
-    if (
-        existing.includes(START_MARKER) &&
-        existing.includes(END_MARKER)
-    ) {
-        output = existing.replace(pattern, block);
-    } else {
-        output = `${existing.trim()}\n\n${block}\n`;
-    }
-    fs.writeFileSync(
-        README_PATH,
-        output,
-        "utf8"
-    );
-}
-// ============================================================
-// MAIN
-// ============================================================
-async function main() {
-    console.log("==================================");
-    console.log(" Modern GitHub Profile Generator");
-    console.log("==================================");
-    ensureDirectories();
-    const config = loadConfig();
-    const username =
-        config.github?.username ||
-        config.profile?.username;
-    if (!username) {
-        throw new Error(
-            "github.username is required."
-        );
-    }
-    const tokenEnv =
-        config.github?.token_env || "GITHUB_TOKEN";
-    const token = process.env[tokenEnv] || "";
-    let github = null;
-    let contributions = null;
-    console.log(`GitHub user: ${username}`);
-    try {
-        console.log("[1/3] Fetching GitHub profile...");
-        github = await getGithubProfile(
-            username,
-            token
-        );
-        console.log("GitHub profile loaded.");
-    } catch (error) {
-        console.error(
-            "GitHub REST API error:",
-            error.message
-        );
-    }
-    if (
-        enabled(config.github?.contributions?.enabled, true)
-    ) {
-        try {
-            console.log("[2/3] Fetching contributions...");
-            contributions = await getContributions(
-                username,
-                token,
-                config.github?.contributions?.include_private
-            );
-            console.log(
-                contributions
-                    ? `Contributions: ${contributions.total}`
-                    : "Contribution data unavailable."
-            );
-        } catch (error) {
-            console.error(
-                "GitHub GraphQL error:",
-                error.message
-            );
+if (enabled(settings.contributions?.enabled) && contributions) {
+    if (enabled(settings.contributions.show_graph)) {
+        output.push(`
+<p align="center">
+    <img src="./assets/contributions.svg" alt="Contribution Graph"/>
+</p>
+`);
+        }
+    if (enabled(settings.contributions.show_streak)) {
+        output.push(`
+<p align="center">
+    <img src="./assets/streak.svg" alt="Contribution Streak"/>
+</p>
+`);
         }
     }
-    console.log("[3/3] Generating assets and README...");
-    const content = generateSections(
-        config,
-        github,
-        contributions
+return `
+
+GitHub Analytics
+
+${output.join(”\n”)}
+`;
+}
+
+async function generateDiscord(config, presence) {
+const discord = config.discord;
+
+if (!enabled(discord.enabled)) {
+    removeAsset("discord.svg");
+    return "";
+}
+const ui = discord.ui || {};
+if (!enabled(ui.enabled)) {
+    removeAsset("discord.svg");
+    return "";
+}
+const svg = createDiscordSVG(presence, {
+    theme: theme(config),
+    show_avatar: ui.show_avatar,
+    show_display_name: ui.show_display_name,
+    show_username: ui.show_username,
+    show_status: ui.show_status,
+    show_activity: enabled(discord.show_activity),
+    show_spotify: enabled(discord.show_spotify),
+    show_timestamp: ui.show_timestamp,
+    show_progress: ui.show_progress
+});
+writeAsset("discord.svg", svg);
+return `
+
+Discord Presence
+
+<p align="center">
+    <img src="./assets/discord.svg" alt="Discord Presence"/>
+</p>
+`;
+}
+
+function generateSocials(config) {
+if (!enabled(config.socials.enabled)) return “”;
+
+const links = config.socials.links || [];
+const items = links.map(link => {
+    const label = escapeHTML(link.label);
+    const url = String(link.url || "");
+    if (!/^https:\/\/|^mailto:/.test(url)) {
+        warn(`Skipped invalid social URL: ${label}`);
+        return "";
+    }
+    return `<a href="${escapeHTML(url)}">${label}</a>`;
+}).filter(Boolean);
+return `
+
+Connect With Me
+
+<p align="center">
+    ${items.join(" &nbsp; • &nbsp; ")}
+</p>
+`;
+}
+
+function generateFooter() {
+return `
+
+<p align="center">
+    <sub>Generated automatically with GitHub Actions.</sub>
+</p>
+`;
+}
+
+/**
+
+* Build sections in config order.
+    */
+    async function generateSections(config, github, contributions, presence) {
+    const generators = {
+    typing: () => generateTypingHeader(config.profile),
+    about: () => generateAbout(config),
+    tech_stack: () => generateTechStack(config),
+    github: () => generateGithub(config, github, contributions),
+    discord: () => generateDiscord(config, presence),
+    socials: () => generateSocials(config)
+    };
+    const order = Array.isArray(config.sections.order)
+    ? config.sections.order
+    : [
+    “typing”,
+    “about”,
+    “tech_stack”,
+    “github”,
+    “discord”,
+    “socials”
+    ];
+    const output = [generateProfileHeader(config.profile)];
+    for (const section of order) {
+    const generator = generators[section];
+
+ if (!generator) {
+     warn(`Unknown section: ${section}`);
+     continue;
+ }
+ const content = await generator();
+ if (content) {
+     output.push(content);
+ }
+
+    }
+    output.push(generateFooter());
+    return output.join(”\n”);
+    }
+
+/**
+
+* Update README between markers.
+* If markers are missing, create them.
+    */
+    function updateReadme(content) {
+    const generated = ${START_MARKER}\n${content}\n${END_MARKER};
+    if (!fs.existsSync(README_PATH)) {
+    fs.writeFileSync(README_PATH, ${generated}\n, “utf8”);
+    return;
+    }
+    const current = fs.readFileSync(README_PATH, “utf8”);
+    const start = current.indexOf(START_MARKER);
+    const end = current.indexOf(END_MARKER);
+    if (start !== -1 && end !== -1 && end > start) {
+    const before = current.slice(0, start);
+    const after = current.slice(end + END_MARKER.length);
+
+ fs.writeFileSync(
+     README_PATH,
+     `${before}${generated}${after}`,
+     "utf8"
+ );
+
+    } else {
+    fs.writeFileSync(
+    README_PATH,
+    ${generated}\n,
+    “utf8”
+    );
+    }
+    }
+
+/**
+
+* Main.
+    */
+    async function main() {
+    log(“Starting…”);
+    ensureDirectories();
+    const config = loadConfig();
+    const username = config.github.username;
+    const tokenName = config.github.token_env || “GITHUB_TOKEN”;
+    const token = process.env[tokenName];
+    if (!username) {
+    throw new Error(“github.username is missing in config.yml.”);
+    }
+    if (!token) {
+    warn(${tokenName} is not configured. Public GitHub data only.);
+    }
+    log(Loading GitHub profile: ${username});
+    const github = await getGithubProfile(username, token);
+    let contributions = null;
+    if (enabled(config.github.contributions?.enabled)) {
+    try {
+    contributions = await getContributions(
+    username,
+    token,
+    enabled(config.github.contributions?.include_private, false)
+    );
+    } catch (error) {
+    warn(Contributions unavailable: ${error.message});
+    }
+    }
+    let presence = null;
+    if (enabled(config.discord.enabled)) {
+    try {
+    log(“Fetching Discord presence…”);
+    presence = await fetchPresence(config.discord.user_id);
+    } catch (error) {
+    warn(Discord unavailable: ${error.message});
+    }
+    }
+    const content = await generateSections(
+    config,
+    github,
+    contributions,
+    presence
     );
     updateReadme(content);
-    console.log("");
-    console.log("Generation completed.");
-    console.log(`README: ${README_PATH}`);
-    console.log(`Assets: ${ASSETS_PATH}`);
-}
+    log(“README updated successfully.”);
+    }
+
 main().catch(error => {
-    console.error("Generation failed:");
-    console.error(error.stack || error.message);
-    process.exitCode = 1;
+console.error(”\n[Generator Error]”, error);
+process.exitCode = 1;
 });
