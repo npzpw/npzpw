@@ -1,6 +1,6 @@
 <!-- Typing Header Animation -->
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=500&size=22&pause=1000&color=FFFFFF&center=true&vCenter=true&width=600&lines=Hi%2C+I'm+Phukan;" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=500&size=22&pause=1000&color=FFFFFF&center=true&vCenter=true&width=600&lines=Hi%2C+I'm+Npzpw;" />
 </p>
 <p align="center">
   <strong>Beginner Full-Stack Developer</strong>
@@ -14,11 +14,10 @@
 
  About Me
 
-* Student: SCIUS Student
-* Olympiad: Computer Olympiad (OCOM II)
+* Student: ComSci Student
 * Location: Thailand
 * Role: Beginner Full-Stack Developer
-* OS: Arch Linux User
+* OS: Windows 11 User
 * Interest: Developer tools, automation, web development
 * Learning: Always improving and exploring new technologies
 
@@ -61,8 +60,8 @@ Tools
  GitHub Statistics
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=PUKAN223&show_icons=true&theme=transparent&hide_border=true&rank_icon=github" height="165" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=PUKAN223&layout=compact&theme=transparent&hide_border=true" height="165" />
+  <img src="https://github-readme-stats.vercel.app/api?username=npzpw&show_icons=true&theme=transparent&hide_border=true&rank_icon=github" height="165" />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=npzpw&layout=compact&theme=transparent&hide_border=true" height="165" />
 </p>
 
 ⸻
@@ -70,7 +69,7 @@ Tools
  Contribution Streak
 
 <p align="center">
-  <img src="https://streak-stats.demolab.com?user=PUKAN223&theme=transparent&hide_border=true" />
+  <img src="https://streak-stats.demolab.com?user=npzpw&theme=transparent&hide_border=true" />
 </p>
 
 ⸻
@@ -78,7 +77,7 @@ Tools
  Contribution Graph
 
 <p align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=PUKAN223&theme=github-compact&hide_border=true&area=true" width="100%" />
+  <img src="https://github-readme-activity-graph.vercel.app/graph?username=npzpw&theme=github-compact&hide_border=true&area=true" width="100%" />
 </p>
 
 ⸻
