@@ -1,0 +1,179 @@
+<svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            width="480"
+            height="280"
+            viewBox="0 0 480 280"
+            role="img"
+            aria-label="Discord presence card"
+        >
+            <defs>
+                <clipPath id="avatarClip">
+                    <circle cx="62" cy="62" r="38"/>
+                </clipPath>
+
+                <clipPath id="albumClip">
+                    <rect
+                        x="30"
+                        y="166"
+                        width="82"
+                        height="82"
+                        rx="9"
+                    />
+                </clipPath>
+            </defs>
+
+            <rect
+                width="480"
+                height="280"
+                rx="17"
+                fill="#0D1117"
+                stroke="#30363D"
+            />
+
+            <rect
+                x="18"
+                y="18"
+                width="444"
+                height="84"
+                rx="13"
+                fill="#161B22"
+                stroke="#30363D"
+            />
+
+            
+                <circle
+                    cx="62"
+                    cy="62"
+                    r="38"
+                    fill="#30363D"
+                />
+
+                <text
+                    x="62"
+                    y="69"
+                    fill="#E6EDF3"
+                    font-size="24"
+                    text-anchor="middle"
+                    font-family="Arial"
+                >
+                    W
+                </text>
+            
+            
+            <text
+                x="116"
+                y="48"
+                fill="#E6EDF3"
+                font-size="19"
+                font-weight="700"
+                font-family="Arial"
+            >
+                Discord Presence
+            </text>
+        
+            
+            <text
+                x="116"
+                y="70"
+                fill="#8B949E"
+                font-size="12"
+                font-family="Arial"
+            >
+                @Waiting for Lanyard
+            </text>
+        
+            
+            <circle
+                cx="116"
+                cy="88"
+                r="5"
+                fill="#80848E"
+            />
+
+            <text
+                x="128"
+                y="92"
+                fill="#8B949E"
+                font-size="10"
+                font-family="Arial"
+            >
+                OFFLINE
+            </text>
+        
+            
+            <rect
+                x="18"
+                y="112"
+                width="444"
+                height="32"
+                rx="9"
+                fill="#161B22"
+                stroke="#30363D"
+            />
+
+            <circle
+                cx="31"
+                cy="128"
+                r="3"
+                fill="#58A6FF"
+            />
+
+            <text
+                x="42"
+                y="132"
+                fill="#8B949E"
+                font-size="10"
+                font-family="Arial"
+            >
+                No current activity
+            </text>
+        
+            
+                <rect
+                    x="18"
+                    y="154"
+                    width="444"
+                    height="106"
+                    rx="13"
+                    fill="#161B22"
+                    stroke="#30363D"
+                />
+
+                <circle
+                    cx="71"
+                    cy="207"
+                    r="27"
+                    fill="#30363D"
+                />
+
+                <text
+                    x="71"
+                    y="216"
+                    fill="#1DB954"
+                    font-size="27"
+                    text-anchor="middle"
+                >♫</text>
+
+                <text
+                    x="116"
+                    y="199"
+                    fill="#E6EDF3"
+                    font-size="13"
+                    font-weight="700"
+                    font-family="Arial"
+                >
+                    Not listening to Spotify
+                </text>
+
+                <text
+                    x="116"
+                    y="219"
+                    fill="#8B949E"
+                    font-size="10"
+                    font-family="Arial"
+                >
+                    Spotify activity will appear here.
+                </text>
+            
+        </svg>

@@ -1,156 +1,82 @@
-<svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="600"
-    height="232"
-    viewBox="0 0 600 232"
-    fill="none"
->
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="560"
+     height="129"
+     viewBox="0 0 560 129">
+    <rect width="560"
+          height="129"
+          rx="14"
+          fill="#0D1117"
+          stroke="#30363D" stroke-width="1"/>
+    
+        <text x="20" y="13"
+              fill="#8B949E"
+              font-size="9"
+              font-family="Arial">MOST USED LANGUAGES</text>
 
-<defs>
-    <linearGradient id="languages-accent" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#58A6FF"/>
-        <stop offset="100%" stop-color="#8B5CF6"/>
-    </linearGradient>
-    <linearGradient id="languages-accent-soft" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#58A6FF" stop-opacity="0.20"/>
-        <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0.05"/>
-    </linearGradient>
-</defs>
+        <clipPath id="languageBar">
+            <rect x="20" y="19"
+                  width="520" height="9"
+                  rx="4"/>
+        </clipPath>
 
+        <g clip-path="url(#languageBar)">
+            
+            <rect x="20" y="19"
+                  width="448.496756766057" height="9"
+                  fill="#58A6FF"/>
+        
+            <rect x="468.496756766057" y="19"
+                  width="44.1169284767984" height="9"
+                  fill="#A371F7"/>
+        
+            <rect x="512.6136852428554" y="19"
+                  width="27.38631475714458" height="9"
+                  fill="#3FB950"/>
+        
+        </g>
 
-<rect
-    x="0.5"
-    y="0.5"
-    width="599"
-    height="231"
-    rx="16"
-    fill="#161B22"
-    stroke="#30363D"
-    stroke-opacity="1"
-/>
+        
+            <circle cx="22" cy="53" r="4"
+                    fill="#58A6FF"/>
 
+            <text x="34" y="57"
+                  fill="#E6EDF3"
+                  font-size="11"
+                  font-family="Arial">JavaScript</text>
 
-        <text
-            x="22"
-            y="34"
-            fill="#E6EDF3"
-            font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-            font-size="15"
-            font-weight="700"
-        >Most Used Languages</text>
-        <text
-            x="578"
-            y="34"
-            text-anchor="end"
-            fill="#8B949E"
-            font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
-            font-size="10"
-        >LANGUAGE DISTRIBUTION</text>
+            <text x="267" y="57"
+                  fill="#8B949E"
+                  font-size="10"
+                  text-anchor="end"
+                  font-family="Arial">86.2%</text>
         
-            <g>
-                <text
-                    x="22"
-                    y="73"
-                    fill="#E6EDF3"
-                    font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-                    font-size="12"
-                    font-weight="600"
-                >JavaScript</text>
-                <text
-                    x="578"
-                    y="73"
-                    text-anchor="end"
-                    fill="#8B949E"
-                    font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
-                    font-size="11"
-                >87.5%</text>
-                <rect
-                    x="22"
-                    y="83"
-                    width="340"
-                    height="7"
-                    rx="4"
-                    fill="#30363D"
-                />
-                <rect
-                    x="22"
-                    y="83"
-                    width="297.59881407505657"
-                    height="7"
-                    rx="4"
-                    fill="#58A6FF"
-                />
-            </g>
+            <circle cx="286" cy="53" r="4"
+                    fill="#A371F7"/>
+
+            <text x="298" y="57"
+                  fill="#E6EDF3"
+                  font-size="11"
+                  font-family="Arial">CSS</text>
+
+            <text x="531" y="57"
+                  fill="#8B949E"
+                  font-size="10"
+                  text-anchor="end"
+                  font-family="Arial">8.5%</text>
         
-            <g>
-                <text
-                    x="22"
-                    y="121"
-                    fill="#E6EDF3"
-                    font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-                    font-size="12"
-                    font-weight="600"
-                >CSS</text>
-                <text
-                    x="578"
-                    y="121"
-                    text-anchor="end"
-                    fill="#8B949E"
-                    font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
-                    font-size="11"
-                >7.7%</text>
-                <rect
-                    x="22"
-                    y="131"
-                    width="340"
-                    height="7"
-                    rx="4"
-                    fill="#30363D"
-                />
-                <rect
-                    x="22"
-                    y="131"
-                    width="26.161192166653663"
-                    height="7"
-                    rx="4"
-                    fill="#A78BFA"
-                />
-            </g>
+            <circle cx="22" cy="80" r="4"
+                    fill="#3FB950"/>
+
+            <text x="34" y="84"
+                  fill="#E6EDF3"
+                  font-size="11"
+                  font-family="Arial">HTML</text>
+
+            <text x="267" y="84"
+                  fill="#8B949E"
+                  font-size="10"
+                  text-anchor="end"
+                  font-family="Arial">5.3%</text>
         
-            <g>
-                <text
-                    x="22"
-                    y="169"
-                    fill="#E6EDF3"
-                    font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-                    font-size="12"
-                    font-weight="600"
-                >HTML</text>
-                <text
-                    x="578"
-                    y="169"
-                    text-anchor="end"
-                    fill="#8B949E"
-                    font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
-                    font-size="11"
-                >4.8%</text>
-                <rect
-                    x="22"
-                    y="179"
-                    width="340"
-                    height="7"
-                    rx="4"
-                    fill="#30363D"
-                />
-                <rect
-                    x="22"
-                    y="179"
-                    width="16.23999375828977"
-                    height="7"
-                    rx="4"
-                    fill="#34D399"
-                />
-            </g>
-        
-        
+    
 </svg>
