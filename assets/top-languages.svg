@@ -1,8 +1,8 @@
 <svg
     xmlns="http://www.w3.org/2000/svg"
     width="600"
-    height="136"
-    viewBox="0 0 600 136"
+    height="232"
+    viewBox="0 0 600 232"
     fill="none"
 >
 
@@ -22,7 +22,7 @@
     x="0.5"
     y="0.5"
     width="599"
-    height="135"
+    height="231"
     rx="16"
     fill="#161B22"
     stroke="#30363D"
@@ -63,7 +63,7 @@
                     fill="#8B949E"
                     font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
                     font-size="11"
-                >100.0%</text>
+                >87.5%</text>
                 <rect
                     x="22"
                     y="83"
@@ -75,10 +75,80 @@
                 <rect
                     x="22"
                     y="83"
-                    width="340"
+                    width="297.59881407505657"
                     height="7"
                     rx="4"
                     fill="#58A6FF"
+                />
+            </g>
+        
+            <g>
+                <text
+                    x="22"
+                    y="121"
+                    fill="#E6EDF3"
+                    font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                    font-size="12"
+                    font-weight="600"
+                >CSS</text>
+                <text
+                    x="578"
+                    y="121"
+                    text-anchor="end"
+                    fill="#8B949E"
+                    font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
+                    font-size="11"
+                >7.7%</text>
+                <rect
+                    x="22"
+                    y="131"
+                    width="340"
+                    height="7"
+                    rx="4"
+                    fill="#30363D"
+                />
+                <rect
+                    x="22"
+                    y="131"
+                    width="26.161192166653663"
+                    height="7"
+                    rx="4"
+                    fill="#A78BFA"
+                />
+            </g>
+        
+            <g>
+                <text
+                    x="22"
+                    y="169"
+                    fill="#E6EDF3"
+                    font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                    font-size="12"
+                    font-weight="600"
+                >HTML</text>
+                <text
+                    x="578"
+                    y="169"
+                    text-anchor="end"
+                    fill="#8B949E"
+                    font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, monospace"
+                    font-size="11"
+                >4.8%</text>
+                <rect
+                    x="22"
+                    y="179"
+                    width="340"
+                    height="7"
+                    rx="4"
+                    fill="#30363D"
+                />
+                <rect
+                    x="22"
+                    y="179"
+                    width="16.23999375828977"
+                    height="7"
+                    rx="4"
+                    fill="#34D399"
                 />
             </g>
         
