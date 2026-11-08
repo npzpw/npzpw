@@ -2,7 +2,8 @@
 
 <!-- Generated automatically. Edit config.yml instead. -->
 
-<p align="center"><img src="https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=500&size=22&pause=1000&color=58A6FF&center=true&vCenter=true&width=600&lines=Full-Stack%20Developer;JavaScript%20%2F%20TypeScript%20Developer;Building%20projects%20and%20learning%20every%20day" alt="Typing Header" /></p>
+<h1 align="center">Npzpw</h1>
+<p align="center"><img src="https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=500&size=22&pause=1000&color=58A6FF&center=true&vCenter=true&width=600&lines=Full-Stack%20Developer;JavaScript%20%2F%20TypeScript%20Developer;Building%20projects%20and%20learning%20every%20day" alt="Typing Animation" /></p>
 <p align="center"><strong>Beginner Full-Stack Developer</strong></p>
 <p align="center">ComSci student from Thailand. Interested in web development, automation, and developer tools.</p>
 
