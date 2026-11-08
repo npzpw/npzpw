@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="500"
+     height="142"
+     viewBox="0 0 500 142">
+    <rect width="500" height="142" rx="12"
+          fill="#161B22"
+          stroke="#30363D"/>
+    <rect x="0" y="0" width="4" height="142"
+          rx="2" fill="#58A6FF"/>
+    <text x="22" y="30"
+          fill="#E6EDF3"
+          font-size="16"
+          font-weight="700">
+        GitHub Overview
+    </text>
+    
+            <text x="22" y="58" fill="#8B949E" font-size="13">
+                Public Repositories
+            </text>
+            <text x="478" y="58" text-anchor="end"
+                  fill="#E6EDF3" font-size="13" font-weight="600">
+                1
+            </text>
+        
+            <text x="22" y="87" fill="#8B949E" font-size="13">
+                Followers
+            </text>
+            <text x="478" y="87" text-anchor="end"
+                  fill="#E6EDF3" font-size="13" font-weight="600">
+                6
+            </text>
+        
+            <text x="22" y="116" fill="#8B949E" font-size="13">
+                Total Stars
+            </text>
+            <text x="478" y="116" text-anchor="end"
+                  fill="#E6EDF3" font-size="13" font-weight="600">
+                0
+            </text>
+        
+</svg>
