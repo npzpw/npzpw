@@ -1,13 +1,10 @@
 #!/usr/bin/env node
-"use strict";
 /**
  * GitHub Profile README Generator
- *
  * Node.js 22+
- * npm dependency: js-yaml
+ * ESM
  *
- * Run:
- * npm install
+ * npm install js-yaml
  * npm run generate
  */
 import fs from "node:fs";
@@ -20,11 +17,9 @@ import { fileURLToPath } from "node:url";
 // ============================================================
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const ROOT = path.resolve(__dirname, "..");
 const CONFIG_PATH = path.join(ROOT, "config.yml");
 const README_PATH = path.join(ROOT, "README.md");
-const ASSETS_PATH = path.join(ROOT, "assets");
 const START_MARKER = "<!-- PROFILE-GENERATOR:START -->";
 const END_MARKER = "<!-- PROFILE-GENERATOR:END -->";
 // ============================================================
@@ -60,18 +55,23 @@ function escapeHTML(value) {
 function escapeRegex(value) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+function encode(value) {
+    return encodeURIComponent(String(value ?? ""));
+}
 function getColor(config, key, fallback) {
-    return String(config.theme?.[key] || fallback).replace(/^#/, "");
+    return String(
+        config.theme?.[key] || fallback
+    ).replace(/^#/, "");
 }
-function ensureDirectories() {
-    fs.mkdirSync(ASSETS_PATH, { recursive: true });
-}
-function writeAsset(filename, content) {
-    fs.writeFileSync(
-        path.join(ASSETS_PATH, filename),
+function center(content) {
+    return [
+        '<div align="center">',
         content,
-        "utf8"
-    );
+        "</div>"
+    ].join("\n");
+}
+function separator() {
+    return "\n---\n";
 }
 // ============================================================
 // HTTP
@@ -100,13 +100,13 @@ async function getGithubProfile(username, token) {
         ? { Authorization: `Bearer ${token}` }
         : {};
     const user = await fetchJSON(
-        `https://api.github.com/users/${encodeURIComponent(username)}`,
+        `https://api.github.com/users/${encode(username)}`,
         { headers }
     );
     const repositories = [];
     for (let page = 1; page <= 3; page++) {
         const items = await fetchJSON(
-            `https://api.github.com/users/${encodeURIComponent(username)}/repos?per_page=100&page=${page}&type=owner`,
+            `https://api.github.com/users/${encode(username)}/repos?per_page=100&page=${page}&type=owner`,
             { headers }
         );
         repositories.push(...items);
@@ -118,22 +118,35 @@ async function getGithubProfile(username, token) {
         stars: 0
     };
     const languages = {};
+    // Limit concurrent requests to reduce API pressure.
+    const languageRepos = repositories.filter(
+        repo => !repo.fork
+    );
+    const concurrency = 8;
+    for (
+        let i = 0;
+        i < languageRepos.length;
+        i += concurrency
+    ) {
+        const batch = languageRepos.slice(
+            i,
+            i + concurrency
+        );
+        const results = await Promise.allSettled(
+            batch.map(repo =>
+                fetchJSON(repo.languages_url, { headers })
+            )
+        );
+        for (const result of results) {
+            if (result.status !== "fulfilled") continue;
+            for (const [name, bytes] of Object.entries(result.value)) {
+                languages[name] =
+                    (languages[name] || 0) + bytes;
+            }
+        }
+    }
     for (const repo of repositories) {
         stats.stars += repo.stargazers_count || 0;
-        if (repo.fork) continue;
-        try {
-            const data = await fetchJSON(
-                repo.languages_url,
-                { headers }
-            );
-            for (const [name, bytes] of Object.entries(data)) {
-                languages[name] = (languages[name] || 0) + bytes;
-            }
-        } catch (error) {
-            console.warn(
-                `Skipping language data: ${repo.full_name}`
-            );
-        }
     }
     const totalBytes = Object.values(languages)
         .reduce((sum, bytes) => sum + bytes, 0);
@@ -159,11 +172,17 @@ async function getContributions(username, token, includePrivate) {
         return null;
     }
     const query = `
-        query($login: String!, $from: DateTime!, $to: DateTime!) {
+        query(
+            $login: String!,
+            $from: DateTime!,
+            $to: DateTime!,
+            $includePrivate: Boolean!
+        ) {
             user(login: $login) {
                 contributionsCollection(
                     from: $from,
-                    to: $to
+                    to: $to,
+                    includePrivate: $includePrivate
                 ) {
                     contributionCalendar {
                         totalContributions
@@ -180,7 +199,9 @@ async function getContributions(username, token, includePrivate) {
     `;
     const now = new Date();
     const from = new Date(now);
-    from.setUTCFullYear(from.getUTCFullYear() - 1);
+    from.setUTCFullYear(
+        from.getUTCFullYear() - 1
+    );
     const result = await fetchJSON(
         "https://api.github.com/graphql",
         {
@@ -194,7 +215,8 @@ async function getContributions(username, token, includePrivate) {
                 variables: {
                     login: username,
                     from: from.toISOString(),
-                    to: now.toISOString()
+                    to: now.toISOString(),
+                    includePrivate: Boolean(includePrivate)
                 }
             })
         }
@@ -207,13 +229,11 @@ async function getContributions(username, token, includePrivate) {
     const calendar =
         result.data?.user?.contributionsCollection?.contributionCalendar;
     if (!calendar) return null;
-    const days = calendar.weeks.flatMap(
-        week => week.contributionDays
-    );
     return {
         total: calendar.totalContributions,
-        days,
-        includePrivate
+        days: calendar.weeks.flatMap(
+            week => week.contributionDays
+        )
     };
 }
 // ============================================================
@@ -221,10 +241,7 @@ async function getContributions(username, token, includePrivate) {
 // ============================================================
 function calculateStreak(days) {
     if (!days?.length) {
-        return {
-            current: 0,
-            longest: 0
-        };
+        return { current: 0, longest: 0 };
     }
     let longest = 0;
     let running = 0;
@@ -238,11 +255,11 @@ function calculateStreak(days) {
     }
     let current = 0;
     let index = days.length - 1;
-    const today = new Date();
-    const todayString = today.toISOString().slice(0, 10);
-    // Ignore today if it has not yet received contributions.
+    const today = new Date()
+        .toISOString()
+        .slice(0, 10);
     if (
-        days[index].date === todayString &&
+        days[index].date === today &&
         days[index].contributionCount === 0
     ) {
         index--;
@@ -257,208 +274,181 @@ function calculateStreak(days) {
     return { current, longest };
 }
 // ============================================================
-// SVG GENERATOR
+// SKILL ICONS
 // ============================================================
-function createCard(title, rows, config) {
-    const background = getColor(config, "card", "161B22");
-    const text = getColor(config, "text", "E6EDF3");
-    const muted = getColor(config, "muted", "8B949E");
-    const accent = getColor(config, "accent", "58A6FF");
-    const border = getColor(config, "border", "30363D");
-    const showBorder = enabled(
-        config.theme?.show_border,
-        true
-    );
-    const rowHeight = 29;
-    const height = 55 + rows.length * rowHeight;
-    const rowContent = rows.map((row, index) => {
-        const y = 58 + index * rowHeight;
-        return `
-            <text x="22" y="${y}" fill="#${muted}" font-size="13">
-                ${escapeHTML(row.label)}
-            </text>
-            <text x="478" y="${y}" text-anchor="end"
-                  fill="#${text}" font-size="13" font-weight="600">
-                ${escapeHTML(row.value)}
-            </text>
-        `;
-    }).join("");
-    return `
-<svg xmlns="http://www.w3.org/2000/svg"
-     width="500"
-     height="${height}"
-     viewBox="0 0 500 ${height}">
-    <rect width="500" height="${height}" rx="12"
-          fill="#${background}"
-          ${showBorder ? `stroke="#${border}"` : ""}/>
-    <rect x="0" y="0" width="4" height="${height}"
-          rx="2" fill="#${accent}"/>
-    <text x="22" y="30"
-          fill="#${text}"
-          font-size="16"
-          font-weight="700">
-        ${escapeHTML(title)}
-    </text>
-    ${rowContent}
-</svg>
-`.trim();
+const SKILL_ICON_ALIASES = {
+    "javascript": "js",
+    "typescript": "ts",
+    "next.js": "nextjs",
+    "tailwind css": "tailwind",
+    "node.js": "nodejs",
+    "visual studio code": "vscode",
+    "vs code": "vscode",
+    "c++": "cpp",
+    "c#": "cs",
+    "html": "html",
+    "css": "css",
+    "express": "express",
+    "mongodb": "mongodb",
+    "firebase": "firebase",
+    "supabase": "supabase",
+    "github": "github",
+    "windows": "windows",
+    "linux": "linux",
+    "npm": "npm",
+    "bun": "bun",
+    "deno": "deno",
+    "react": "react",
+    "vite": "vite",
+    "git": "git",
+    "python": "python",
+    "java": "java",
+    "php": "php",
+    "mysql": "mysql",
+    "postgresql": "postgres",
+    "redis": "redis",
+    "docker": "docker",
+    "figma": "figma"
+};
+function getSkillIcon(item) {
+    const key = String(item).toLowerCase();
+    return SKILL_ICON_ALIASES[key] || null;
+}
+function generateSkillIcons(items) {
+    const icons = items
+        .map(getSkillIcon)
+        .filter(Boolean);
+    if (!icons.length) {
+        return items.map(item => `\`${item}\``).join(" ");
+    }
+    return `<img src="https://skillicons.dev/icons?i=${icons.join(",")}" alt="${escapeHTML(items.join(", "))}" />`;
 }
 // ============================================================
-// CONTRIBUTION GRAPH
+// TYPING HEADER
 // ============================================================
-function createContributionGraph(days, config) {
-    if (!days?.length) return null;
-    const accent = getColor(config, "accent", "58A6FF");
-    const background = getColor(config, "background", "0D1117");
-    const cell = 11;
-    const gap = 3;
-    const firstDate = new Date(`${days[0].date}T00:00:00Z`);
-    const offset = firstDate.getUTCDay();
-    const columns = Math.ceil((offset + days.length) / 7);
-    const width = 24 + columns * (cell + gap);
-    const height = 125;
-    const max = Math.max(
-        1,
-        ...days.map(day => day.contributionCount)
-    );
-    const rectangles = days.map((day, index) => {
-        const date = new Date(`${day.date}T00:00:00Z`);
-        const position = offset + index;
-        const x = 12 + Math.floor(position / 7) * (cell + gap);
-        const y = 30 + date.getUTCDay() * (cell + gap);
-        const count = day.contributionCount;
-        const opacity = count === 0
-            ? 0.12
-            : 0.25 + (count / max) * 0.75;
-        return `
-            <rect x="${x}" y="${y}"
-                  width="${cell}" height="${cell}"
-                  rx="2" fill="#${accent}"
-                  opacity="${opacity.toFixed(2)}">
-                <title>${escapeHTML(day.date)}: ${count} contributions</title>
-            </rect>
-        `;
-    }).join("");
-    return `
-<svg xmlns="http://www.w3.org/2000/svg"
-     width="${width}"
-     height="${height}"
-     viewBox="0 0 ${width} ${height}">
-    <rect width="100%" height="100%" rx="10"
-          fill="#${background}"/>
-    <text x="12" y="18"
-          fill="#${getColor(config, "text", "E6EDF3")}"
-          font-size="12" font-weight="600">
-        Contribution Activity
-    </text>
-    ${rectangles}
-</svg>
-`.trim();
-}
-// ============================================================
-// PROFILE SECTIONS
-// ============================================================
-function generateTyping(profile) {
+function generateTypingHeader(profile) {
     const typing = profile.typing || {};
-    if (!enabled(typing.enabled, false)) return "";
-    const lines = typing.lines || [];
-    if (!lines.length) return "";
-    const color = String(
-        typing.color || "58A6FF"
-    ).replace(/^#/, "");
-    return `
-<p>
-    <strong style="color:#${escapeHTML(color)}">
-        ${lines.map(escapeHTML).join(" • ")}
-    </strong>
-</p>
-`.trim();
+    const output = [];
+    if (enabled(typing.enabled, true) && typing.lines?.length) {
+        const lines = typing.lines
+            .map(line => encode(line))
+            .join(";");
+        const color = String(
+            typing.color || "FFFFFF"
+        ).replace(/^#/, "");
+        const typingURL =
+            "https://readme-typing-svg.demolab.com/?" +
+            "font=Fira+Code" +
+            "&weight=500" +
+            "&size=22" +
+            "&pause=1000" +
+            "&color=" + encode(color) +
+            "&center=true" +
+            "&vCenter=true" +
+            "&width=600" +
+            "&lines=" + lines;
+        output.push(
+            `<p align="center"><img src="${typingURL}" alt="Typing SVG" /></p>`
+        );
+    } else if (profile.display_name) {
+        output.push(
+            `<h1 align="center">Hi, I'm ${escapeHTML(profile.display_name)}!</h1>`
+        );
+    }
+    if (profile.role) {
+        output.push(
+            `<p align="center"><strong>${escapeHTML(profile.role)}</strong></p>`
+        );
+    }
+    if (profile.intro) {
+        output.push(
+            `<p align="center">${escapeHTML(profile.intro)}</p>`
+        );
+    }
+    return output.join("\n");
 }
+// ============================================================
+// ABOUT ME
+// ============================================================
 function generateAbout(config) {
     const about = config.about || {};
     if (!enabled(about.enabled, true)) return "";
     const items = about.items || [];
     if (!items.length) return "";
     return [
-        "## About Me",
+        "## 👨‍💻 About Me",
         "",
         ...items.map(item => `- ${item}`)
     ].join("\n");
 }
+// ============================================================
+// TECH STACK
+// ============================================================
 function generateTechStack(config) {
     const stack = config.tech_stack || {};
     if (!enabled(stack.enabled, true)) return "";
-    const categories = stack.categories || [];
-    const output = ["## Tech Stack"];
-    for (const category of categories) {
+    const output = ["## 🛠️ Tech Stack"];
+    for (const category of stack.categories || []) {
         const items = category.items || [];
         if (!items.length) continue;
         output.push("");
-        output.push(`**${category.title || "Technologies"}**`);
+        output.push(`### ${escapeHTML(category.title || "Technologies")}`);
         output.push("");
-        output.push(
-            items.map(item => `\`${escapeHTML(item)}\``).join(" ")
-        );
+        output.push(`<p>${generateSkillIcons(items)}</p>`);
     }
-    return output.join("\n");
+    return output.length > 1
+        ? output.join("\n")
+        : "";
 }
+// ============================================================
+// GITHUB STATISTICS
+// ============================================================
 function generateGithub(config, github, contributions) {
     const settings = config.github || {};
-    const output = ["## GitHub"];
-    if (enabled(settings.stats?.enabled, true)) {
-        const rows = [];
-        if (enabled(settings.stats.show_repositories, true)) {
-            rows.push({
-                label: "Public Repositories",
-                value: github?.repositories ?? "Unavailable"
-            });
-        }
-        if (enabled(settings.stats.show_followers, true)) {
-            rows.push({
-                label: "Followers",
-                value: github?.followers ?? "Unavailable"
-            });
-        }
-        if (enabled(settings.stats.show_stars, true)) {
-            rows.push({
-                label: "Total Stars",
-                value: github?.stars ?? "Unavailable"
-            });
-        }
-        if (rows.length) {
-            writeAsset(
-                "github-stats.svg",
-                createCard("GitHub Overview", rows, config)
+    const username = settings.username || config.profile?.username;
+    if (!username) return "";
+    const output = ["## 📊 GitHub Statistics"];
+    const stats = settings.stats || {};
+    if (enabled(stats.enabled, true)) {
+        const params = new URLSearchParams({
+            username,
+            show_icons: "true",
+            theme: "transparent",
+            hide_border: "true",
+            rank_icon: "github"
+        });
+        const statsURL =
+            `https://github-readme-stats.vercel.app/api?${params}`;
+        const languageParams = new URLSearchParams({
+            username,
+            layout: "compact",
+            theme: "transparent",
+            hide_border: "true"
+        });
+        const languageURL =
+            `https://github-readme-stats.vercel.app/api/top-langs/?${languageParams}`;
+        const cards = [];
+        if (
+            enabled(stats.show_repositories, true) ||
+            enabled(stats.show_followers, true) ||
+            enabled(stats.show_stars, true)
+        ) {
+            cards.push(
+                `<img src="${statsURL}" height="165" alt="GitHub Statistics" />`
             );
+        }
+        if (enabled(settings.languages?.enabled, true)) {
+            cards.push(
+                `<img src="${languageURL}" height="165" alt="Top Languages" />`
+            );
+        }
+        if (cards.length) {
             output.push("");
-            output.push(
-                '<img src="./assets/github-stats.svg" alt="GitHub Stats" />'
-            );
+            output.push(center(cards.join("\n")));
         }
     }
-    if (enabled(settings.languages?.enabled, true)) {
-        const limit = Math.max(
-            1,
-            Number(settings.languages.limit || 8)
-        );
-        const languages = (github?.languages || [])
-            .slice(0, limit)
-            .map(item => ({
-                label: item.name,
-                value: `${item.percentage.toFixed(1)}%`
-            }));
-        if (languages.length) {
-            writeAsset(
-                "top-languages.svg",
-                createCard("Top Languages", languages, config)
-            );
-            output.push("");
-            output.push(
-                '<img src="./assets/top-languages.svg" alt="Top Languages" />'
-            );
-        }
-    }
-    const contributionSettings = settings.contributions || {};
+    const contributionSettings =
+        settings.contributions || {};
     if (
         enabled(contributionSettings.enabled, true) &&
         contributions
@@ -469,30 +459,36 @@ function generateGithub(config, github, contributions) {
                 `**Total Contributions:** ${contributions.total}`
             );
         }
-        if (enabled(contributionSettings.show_graph, true)) {
-            const graph = createContributionGraph(
-                contributions.days,
-                config
-            );
-            if (graph) {
-                writeAsset("contributions.svg", graph);
-                output.push("");
-                output.push(
-                    '<img src="./assets/contributions.svg" alt="Contribution Graph" />'
-                );
-            }
-        }
         if (enabled(contributionSettings.show_streak, true)) {
             const streak = calculateStreak(
                 contributions.days
             );
             output.push("");
+            output.push("### 🔥 Contribution Streak");
+            output.push("");
+            output.push(center(
+                `<img src="https://streak-stats.demolab.com?user=${encode(username)}&theme=transparent&hide_border=true" alt="Contribution Streak" />`
+            ));
+            output.push("");
             output.push(
-                `**Current Streak:** ${streak.current} days`
+                `Current streak: **${streak.current} days** · Longest streak: **${streak.longest} days**`
             );
-            output.push(
-                `**Longest Streak:** ${streak.longest} days`
-            );
+        }
+        if (enabled(contributionSettings.show_graph, true)) {
+            output.push("");
+            output.push("### 📈 Contribution Graph");
+            output.push("");
+            const graphURL =
+                "https://github-readme-activity-graph.vercel.app/graph?" +
+                new URLSearchParams({
+                    username,
+                    theme: "github-compact",
+                    hide_border: "true",
+                    area: "true"
+                });
+            output.push(center(
+                `<img src="${graphURL}" width="100%" alt="Contribution Activity Graph" />`
+            ));
         }
     }
     return output.length > 1
@@ -517,61 +513,78 @@ function generateDiscord(config) {
         "https://lanyard.cnrad.dev/api/{id}?theme=dark";
     const image = imageTemplate.replaceAll(
         "{id}",
-        encodeURIComponent(discord.user_id)
+        encode(discord.user_id)
     );
     return [
-        "## Discord",
+        "## 🎮 Discord",
         "",
-        `[![Discord Presence](${image})](https://discord.com/users/${encodeURIComponent(discord.user_id)})`
+        center(
+            `<a href="https://discord.com/users/${encode(discord.user_id)}"><img src="${image}" alt="Discord Presence" /></a>`
+        )
     ].join("\n");
 }
 // ============================================================
 // SOCIAL LINKS
 // ============================================================
+const SOCIAL_ICON_ALIASES = {
+    github: "github",
+    facebook: "facebook",
+    discord: "discord",
+    gmail: "gmail",
+    email: "gmail",
+    youtube: "youtube",
+    instagram: "instagram",
+    twitter: "twitter",
+    x: "x",
+    linkedin: "linkedin",
+    twitch: "twitch"
+};
 function generateSocials(config) {
     const socials = config.socials || {};
     if (!enabled(socials.enabled, true)) return "";
     const links = (socials.links || [])
         .filter(link => link.label && link.url)
-        .map(link => `[${link.label}](${link.url})`);
+        .map(link => {
+            const icon = SOCIAL_ICON_ALIASES[
+                String(link.label).toLowerCase()
+            ];
+            if (!icon) {
+                return `[${escapeHTML(link.label)}](${link.url})`;
+            }
+            return [
+                `<a href="${escapeHTML(link.url)}">`,
+                `<img src="https://skillicons.dev/icons?i=${icon}" height="42" alt="${escapeHTML(link.label)}" />`,
+                "</a>"
+            ].join("");
+        });
     if (!links.length) return "";
     return [
-        "## Connect",
+        "## 🔗 Connect",
         "",
-        links.join(" · ")
+        center(links.join("\n"))
     ].join("\n");
+}
+// ============================================================
+// FOOTER
+// ============================================================
+function generateFooter() {
+    return center(
+        "<i>Code • Learn • Build • Improve</i>"
+    );
 }
 // ============================================================
 // README
 // ============================================================
 function generateSections(config, github, contributions) {
     const profile = config.profile || {};
-    const displayName =
-        profile.display_name ||
-        profile.username ||
-        "GitHub Profile";
     const sections = {
-        typing: [
-            `<div align="center">`,
-            `<h1>${escapeHTML(displayName)}</h1>`,
-            profile.role
-                ? `<h3>${escapeHTML(profile.role)}</h3>`
-                : "",
-            profile.intro
-                ? `<p>${escapeHTML(profile.intro)}</p>`
-                : "",
-            generateTyping(profile),
-            `</div>`
-        ].filter(Boolean).join("\n"),
+        typing: generateTypingHeader(profile),
         about: generateAbout(config),
         tech_stack: generateTechStack(config),
-        github: generateGithub(
-            config,
-            github,
-            contributions
-        ),
+        github: generateGithub(config, github, contributions),
         discord: generateDiscord(config),
-        socials: generateSocials(config)
+        socials: generateSocials(config),
+        footer: generateFooter()
     };
     const order = config.sections?.order || [
         "typing",
@@ -579,19 +592,21 @@ function generateSections(config, github, contributions) {
         "tech_stack",
         "github",
         "discord",
-        "socials"
+        "socials",
+        "footer"
     ];
     return order
         .map(name => {
-            if (!sections[name]) {
+            if (!(name in sections)) {
                 console.warn(
                     `Unknown section in config.yml: ${name}`
                 );
+                return "";
             }
-            return sections[name] || "";
+            return sections[name];
         })
         .filter(Boolean)
-        .join("\n\n");
+        .join("\n\n---\n\n");
 }
 function updateReadme(content) {
     const existing = fs.existsSync(README_PATH)
@@ -599,6 +614,8 @@ function updateReadme(content) {
         : "";
     const block = [
         START_MARKER,
+        "",
+        "<!-- Generated automatically. Edit config.yml instead. -->",
         "",
         content,
         "",
@@ -616,26 +633,19 @@ function updateReadme(content) {
     } else {
         output = `${existing.trim()}\n\n${block}\n`;
     }
-    fs.writeFileSync(
-        README_PATH,
-        output,
-        "utf8"
-    );
+    fs.writeFileSync(README_PATH, output, "utf8");
 }
 // ============================================================
 // MAIN
 // ============================================================
 async function main() {
     console.log("GitHub Profile Generator");
-    ensureDirectories();
     const config = loadConfig();
     const username =
         config.github?.username ||
         config.profile?.username;
     if (!username) {
-        throw new Error(
-            "github.username is required."
-        );
+        throw new Error("github.username is required.");
     }
     const tokenEnv =
         config.github?.token_env || "GITHUB_TOKEN";
