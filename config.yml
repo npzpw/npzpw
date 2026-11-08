@@ -64,7 +64,7 @@ github:
 discord:
   enabled: true
   provider: "lanyard"
-  user_id: "YOUR_DISCORD_USER_ID"
+  user_id: "848837759611306016"
   show_activity: true
   show_spotify: true
   # Lanyard's hosted image is used; it updates independently from this workflow.
