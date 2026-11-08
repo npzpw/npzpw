@@ -22,15 +22,15 @@
         <g clip-path="url(#languageBar)">
             
             <rect x="20" y="19"
-                  width="448.496756766057" height="9"
+                  width="428.9430324276949" height="9"
                   fill="#58A6FF"/>
         
-            <rect x="468.496756766057" y="19"
-                  width="44.1169284767984" height="9"
+            <rect x="448.9430324276949" y="19"
+                  width="56.18141980718668" height="9"
                   fill="#A371F7"/>
         
-            <rect x="512.6136852428554" y="19"
-                  width="27.38631475714458" height="9"
+            <rect x="505.1244522348816" y="19"
+                  width="34.87554776511832" height="9"
                   fill="#3FB950"/>
         
         </g>
@@ -48,7 +48,7 @@
                   fill="#8B949E"
                   font-size="10"
                   text-anchor="end"
-                  font-family="Arial">86.2%</text>
+                  font-family="Arial">82.5%</text>
         
             <circle cx="286" cy="53" r="4"
                     fill="#A371F7"/>
@@ -62,7 +62,7 @@
                   fill="#8B949E"
                   font-size="10"
                   text-anchor="end"
-                  font-family="Arial">8.5%</text>
+                  font-family="Arial">10.8%</text>
         
             <circle cx="22" cy="80" r="4"
                     fill="#3FB950"/>
@@ -76,7 +76,7 @@
                   fill="#8B949E"
                   font-size="10"
                   text-anchor="end"
-                  font-family="Arial">5.3%</text>
+                  font-family="Arial">6.7%</text>
         
     
 </svg>
