@@ -1,0 +1,94 @@
+# Edit this file to customize your profile. The generator reads this file
+# and rebuilds the README + SVG assets. Do not edit generated README sections.
+
+profile:
+  username: "npzpw"
+  display_name: "Npzpw"
+  role: "Beginner Full-Stack Developer"
+  intro: "ComSci student from Thailand. Interested in web development, automation, and developer tools."
+  typing:
+    enabled: true
+    lines:
+      - "Full-Stack Developer"
+      - "JavaScript / TypeScript Developer"
+      - "Building projects and learning every day"
+    color: "58A6FF"
+
+about:
+  enabled: true
+  items:
+    - "🇹🇭 Based in Thailand"
+    - "🎓 Computer Science student"
+    - "💻 Interested in full-stack development"
+    - "⚙️ Enjoy building tools and automation"
+
+theme:
+  background: "0D1117"
+  card: "161B22"
+  text: "E6EDF3"
+  muted: "8B949E"
+  accent: "58A6FF"
+  border: "30363D"
+  show_border: true
+
+tech_stack:
+  enabled: true
+  categories:
+    - title: "Languages"
+      items: ["JavaScript", "TypeScript", "C++", "C", "HTML", "CSS"]
+    - title: "Frontend"
+      items: ["React", "Next.js", "Tailwind CSS", "Vite"]
+    - title: "Backend & Database"
+      items: ["Node.js", "Express", "Bun", "Supabase", "MongoDB", "Firebase"]
+    - title: "Tools"
+      items: ["Git", "GitHub", "VS Code", "Windows", "Linux"]
+
+github:
+  username: "npzpw"
+  token_env: "GITHUB_TOKEN"
+  stats:
+    enabled: true
+    show_repositories: true
+    show_followers: true
+    show_stars: true
+  languages:
+    enabled: true
+    limit: 8
+  contributions:
+    enabled: true
+    show_graph: true
+    show_streak: true
+    show_total: true
+    include_private: false
+
+discord:
+  enabled: true
+  provider: "lanyard"
+  user_id: "YOUR_DISCORD_USER_ID"
+  show_activity: true
+  show_spotify: true
+  # Lanyard's hosted image is used; it updates independently from this workflow.
+  image_style: "https://lanyard.cnrad.dev/api/{id}?theme=dark&bg=0d1117&borderRadius=10px&idleMessage=Currently%20doing%20nothing"
+
+socials:
+  enabled: true
+  links:
+    - label: "GitHub"
+      url: "https://github.com/npzpw"
+    - label: "Facebook"
+      url: "https://www.facebook.com/profile.php?id=100081792189966"
+    - label: "Email"
+      url: "mailto:Pukan221bill@gmail.com"
+
+sections:
+  order:
+    - "typing"
+    - "about"
+    - "tech_stack"
+    - "github"
+    - "discord"
+    - "socials"
+
+automation:
+  # GitHub Actions schedule has a 5-minute minimum in this project.
+  cron: "*/5 * * * *"
