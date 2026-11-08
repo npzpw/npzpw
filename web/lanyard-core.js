@@ -12,7 +12,7 @@ export function normalizePresence(input) {
             displayName: user.global_name || user.username || "Unknown",
             avatar: user.avatar && user.id
                 ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${user.avatar.startsWith("a_") ? "gif" : "png"}?size=256`
-                : "https://cdn.discordapp.com/embed/avatars/0.png`
+                : : "https://cdn.discordapp.com/embed/avatars/0.png"
         },
         status: data.discord_status || "offline",
         activities: Array.isArray(data.activities)
