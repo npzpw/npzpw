@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#0D1117">
+    <meta name="description" content="Discord Presence Dashboard">
+
+    <title>Discord Presence</title>
+
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <main class="container">
+
+        <header class="header">
+            <div>
+                <span class="eyebrow">LIVE PRESENCE</span>
+                <h1>Discord Profile</h1>
+                <p>Your current Discord activity.</p>
+            </div>
+
+            <div class="connection">
+                <span id="connection-dot"></span>
+                <span id="connection-text">Connecting</span>
+            </div>
+        </header>
+
+        <section class="profile card">
+            <div class="avatar-wrapper">
+                <img id="avatar" src="" alt="Discord Avatar">
+
+                <span id="status-indicator"></span>
+            </div>
+
+            <div class="profile-info">
+                <h2 id="display-name">Loading...</h2>
+                <p id="username">@username</p>
+                <span id="status-label">Connecting</span>
+            </div>
+
+            <div class="profile-badge">DISCORD</div>
+        </section>
+
+        <section class="activity card">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">CURRENT SESSION</span>
+                    <h2>Activity</h2>
+                </div>
+
+                <span class="live-badge">LIVE</span>
+            </div>
+
+            <div id="activity-content">
+                <p class="empty">No activity detected.</p>
+            </div>
+        </section>
+
+        <section class="spotify card" id="spotify-section">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">LISTENING NOW</span>
+                    <h2>Spotify</h2>
+                </div>
+
+                <span class="spotify-badge">SPOTIFY</span>
+            </div>
+
+            <div class="spotify-content">
+                <img id="album-art" src="" alt="Album Cover">
+
+                <div class="track-info">
+                    <h3 id="song-name">Not playing</h3>
+                    <p id="artist-name">Spotify</p>
+                    <span id="album-name"></span>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-track">
+                    <div id="progress-bar"></div>
+                </div>
+
+                <div class="progress-times">
+                    <span id="current-time">0:00</span>
+                    <span id="total-time">0:00</span>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <span>POWERED BY LANYARD</span>
+            <span id="last-updated">Waiting for data</span>
+        </footer>
+
+    </main>
+
+    <script src="./config.js"></script>
+    <script type="module" src="./app.js"></script>
+</body>
+</html>
